@@ -1,0 +1,23 @@
+{
+  "name": "xynohm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A VanillaJS way to build user interfaces",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/placardi/xynohm.git"
+  },
+  "author": "Alexander Zakharov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/placardi/xynohm/issues"
+  },
+  "homepage": "https://github.com/placardi/xynohm#readme"
+}
