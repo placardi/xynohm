@@ -2,7 +2,7 @@
   "name": "xynohm",
   "version": "0.1.0",
   "private": true,
-  "description": "A VanillaJS way to build user interfaces",
+  "description": "A VanillaJS way to build user interfaces.",
   "main": "index.js",
   "directories": {
     "lib": "lib"
@@ -19,5 +19,21 @@
   "bugs": {
     "url": "https://github.com/placardi/xynohm/issues"
   },
-  "homepage": "https://github.com/placardi/xynohm#readme"
+  "homepage": "https://github.com/placardi/xynohm#readme",
+  "devDependencies": {
+    "husky": "^1.2.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "1.15.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md,html}": [
+      "prettier --write",
+      "git add"
+    ]
+  }
 }
