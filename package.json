@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "description": "A VanillaJS way to build user interfaces.",
-  "main": "index.js",
   "engines": {
     "node": ">= 10.14.1"
   },
@@ -11,7 +10,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,9 @@
   "devDependencies": {
     "husky": "^1.2.0",
     "lint-staged": "^8.1.0",
-    "prettier": "1.15.3"
+    "prettier": "1.15.3",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2"
   },
   "husky": {
     "hooks": {
