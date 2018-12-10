@@ -29,16 +29,5 @@
     "prettier": "1.15.3",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,json,css,md,html}": [
-      "prettier --write",
-      "git add"
-    ]
   }
 }

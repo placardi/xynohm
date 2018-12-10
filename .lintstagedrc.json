@@ -1,0 +1,6 @@
+{
+  "linters": {
+    "*.{js,json,css,md,html}": ["prettier --write", "git add"]
+  },
+  "ignore": ["**/dist/*.min.js"]
+}
