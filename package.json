@@ -10,8 +10,11 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "start:dev": "webpack-dev-server --watch --env.mode=development",
+    "start:prod": "webpack-dev-server --watch --env.mode=production",
+    "test": "",
+    "build:dev": "webpack --env.mode=development",
+    "build:prod": "webpack --env.mode=production"
   },
   "repository": {
     "type": "git",
@@ -26,11 +29,18 @@
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
+    "eslint": "^5.10.0",
+    "eslint-loader": "^2.1.1",
     "husky": "^1.2.0",
     "lint-staged": "^8.1.0",
     "prettier": "1.15.3",
+    "typescript": "^3.2.2",
     "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2"
-  }
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  },
+  "dependencies": {}
 }
