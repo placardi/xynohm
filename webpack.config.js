@@ -1,38 +1,38 @@
 const path = require('path');
-const library = require('./package.json').name;
+const webpack = require('webpack');
+const libraryName = require('./package.json').name;
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = env => {
-  const isDevelopment = env.mode === 'development' || false;
+  const isProduction = (!!env && env.mode === 'production') || false;
   return {
-    mode: isDevelopment ? 'development' : 'production',
-    devtool: isDevelopment ? 'source-map' : 'none',
-    entry: './src/index.ts',
+    mode: isProduction ? 'production' : 'development',
+    devtool: isProduction ? 'none' : 'inline-source-map',
+    entry: ['./src/index.ts'],
     output: {
-      filename: library + (isDevelopment ? '' : '.min') + '.js',
-      path: path.resolve(__dirname, 'dist'),
-      library: library,
-      libraryTarget: 'umd',
-      umdNamedDefine: true
+      filename: libraryName + (isProduction ? '.min' : '') + '.js',
+      path: path.resolve(__dirname, isProduction ? './dist/' : './tmp/'),
+      library: undefined,
+      libraryTarget: 'window'
     },
     devServer: {
-      contentBase: './dist'
+      contentBase: './tmp',
+      host: '0.0.0.0',
+      port: 4200,
+      historyApiFallback: true
     },
     resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.json']
+      extensions: ['.ts', '.tsx', '.js']
     },
     module: {
       rules: [
         {
-          test: /\.ts$/,
-          exclude: /node_modules/,
-          loader: 'babel-loader'
-        },
-        {
-          test: /\.ts$/,
-          exclude: /node_modules/,
-          loader: 'eslint-loader'
+          test: /\.tsx?$/,
+          loaders: ['babel-loader', 'ts-loader'],
+          exclude: /node_modules/
         }
       ]
-    }
+    },
+    plugins: isProduction ? [] : [new HtmlWebpackPlugin()]
   };
 };

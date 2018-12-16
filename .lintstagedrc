@@ -1,6 +1,7 @@
 {
   "linters": {
-    "*.{js,json,css,md,html}": ["prettier --write", "git add"]
+    "*.{ts,tsx}": ["tslint -c tslint.json"],
+    "*.{ts,tsx,js,json,css,md,html}": ["prettier --write", "git add"]
   },
-  "ignore": ["**/dist/*.min.js"]
+  "ignore": ["**/dist/*.js", "**/tmp/*.js", "**/coverage/*.js", "node_modules"]
 }

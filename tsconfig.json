@@ -1,18 +1,29 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "es5",
-    "module": "umd",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
+    "target": "es6",
+    "module": "es6",
+    "lib": ["es2017", "dom", "dom.iterable"],
     "sourceMap": true,
+    "outDir": "./tmp/",
+    "rootDir": "./src/",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "downlevelIteration": true,
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
     "alwaysStrict": true,
+    "strictPropertyInitialization": false,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types", "src/types/*"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["**/*.ts"],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules"]
 }
