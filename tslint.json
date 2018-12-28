@@ -11,6 +11,8 @@
       "allow-leading-underscore"
     ],
     "no-empty": [true, "allow-empty-functions"],
+    "interface-name": [true, "never-prefix"],
+    "no-empty-interface": false,
     "no-eval": false
   }
 }
