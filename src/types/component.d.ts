@@ -3,9 +3,9 @@ import { ModuleIntrface } from './module';
 import { TemplateInterface } from './template';
 
 type Action = (data?: any, external?: boolean) => void;
-type State = (model: any) => boolean;
-type View = (model: any, element: HTMLElement) => void;
-type Render = (model: any, external?: boolean) => void;
+type State = (model: Model) => boolean;
+type View = (model: Model, element: HTMLElement) => void;
+type Render = (model: Model, external?: boolean) => void;
 
 interface Actions {
   readonly [key: string]: Action;
@@ -13,6 +13,10 @@ interface Actions {
 
 interface Actionable {
   [key: string]: Actions[];
+}
+
+interface Model {
+  [key: string]: any;
 }
 
 interface States {
@@ -40,7 +44,7 @@ interface ComponentInterface extends Nameable, Unique {
 
 interface ComponentDefinition extends Templateable {
   new (
-    model: any,
+    model: Model,
     uuid: string,
     element: HTMLElement,
     module: ModuleIntrface
@@ -59,6 +63,7 @@ export {
   Actions,
   States,
   Views,
+  Model,
   Actionable,
   Dependencies,
   ComponentInterface,

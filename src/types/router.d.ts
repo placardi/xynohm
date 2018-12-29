@@ -1,6 +1,6 @@
 import { Nameable } from './common';
-import { ModuleDefinitionIntrface, ModuleIntrface } from './module';
-import { ResolverDefinitionIntrface, ResolverIntrface } from './resolver';
+import { ModuleDefinition, ModuleIntrface } from './module';
+import { ResolverDefinition, ResolverIntrface } from './resolver';
 
 interface RouterInterface extends Navigateable {}
 
@@ -14,8 +14,8 @@ interface RouteInterface extends Nameable, WithPath {
 }
 
 interface RouteDefinitionInterface extends Nameable, WithPath {
-  readonly module: ModuleDefinitionIntrface;
-  readonly resolver?: ResolverDefinitionIntrface;
+  readonly module: ModuleDefinition;
+  readonly resolver?: ResolverDefinition;
 }
 
 interface WithPath {
