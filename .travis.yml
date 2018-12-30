@@ -1,0 +1,17 @@
+language: node_js
+
+node_js:
+  - lts/*
+
+  cache:
+  directories:
+    - ~/.npm
+
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
+
+jobs:
+  include:
+    - stage: test
+    - script: npm test
