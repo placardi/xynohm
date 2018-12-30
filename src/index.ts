@@ -1,6 +1,4 @@
-import { App } from './core/app';
-import { Component } from './core/component';
-import { Module } from './core/module';
-import { Resolver } from './core/resolver';
-
-export { App, Component, Module, Resolver };
+export * from './core/app';
+export * from './core/component';
+export * from './core/module';
+export * from './core/resolver';

@@ -6,19 +6,21 @@
   "engines": {
     "node": ">= 10.14.1"
   },
-  "directories": {
-    "dist": "dist"
-  },
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "npm-run-all clean start:webpack",
-    "start:webpack": "webpack-dev-server --hot --inline",
-    "build:dev": "npm-run-all clean:tmp test build:webpack:dev",
-    "build:prod": "npm-run-all clean:tmp test build:webpack:prod",
-    "build:webpack:dev": "webpack --env.mode=development",
-    "build:webpack::prod": "webpack --env.mode=production",
+    "start:webpack": "webpack-dev-server --hot --inline --config webpack/dev.config.js",
+    "build:dev": "npm-run-all clean:dist test build:webpack:dev",
+    "build:prod": "npm-run-all clean:dist test build:webpack:prod",
+    "build:webpack:dev": "webpack --config webpack/dev.config.js",
+    "build:webpack::prod": "webpack --config webpack/prod.config.js",
     "type:check": "tsc",
     "lint:ts": "tslint -t verbose -p . -c tslint.json",
-    "clean:tmp": "rm -rf tmp/*",
+    "clean:dist": "rm -rf dist/*",
     "clean:coverage": "rm -rf coverage",
     "test": "jest --config jest.config.js",
     "test:coverage": "jest --config jest.config.js --coverage",
@@ -53,7 +55,8 @@
     "typescript": "^3.2.2",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.14"
+    "webpack-dev-server": "^3.1.14",
+    "webpack-merge": "^4.1.5"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5"

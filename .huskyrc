@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "lint-staged && jest --config jest.config.js && webpack --env.mode=production && git add dist"
+    "pre-commit": "lint-staged && npm test"
   }
 }
