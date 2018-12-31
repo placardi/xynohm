@@ -1,0 +1,14 @@
+src
+test
+examples
+.babelrc
+.browserlistrc
+.gitignore
+.huskyrc
+.lintstagedrc
+.prettierrc
+.releaserc
+jest.config.js
+tsconfig.json
+tslint.json
+webpack
