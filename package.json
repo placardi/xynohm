@@ -26,6 +26,7 @@
     "test:coverage": "jest --config jest.config.js --coverage",
     "test:watch": "jest --config jest.config.js --watchAll",
     "commit": "git-cz",
+    "release:trigger": "./bin/release/trigger.sh",
     "release:semantic": "semantic-release"
   },
   "repository": {

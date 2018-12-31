@@ -12,14 +12,10 @@ branches:
 jobs:
   include:
     - stage: release
-      if: tag IS present
+      if: (branch = release) AND (type = push)
       node_js: lts/*
-      before_deploy:
-        - cd dist
-      deploy:
-        provider: npm
-        email: '$NPM_EMAIL'
-        api_key: '$NPM_TOKEN'
-        skip_cleanup: true
-        on:
-          tags: true
+      script: npm run release:semantic
+
+notifications:
+  slack: envisage-as:m8dioePQhKyI7s0dJEQcKTI7
+  on_success: always

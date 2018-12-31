@@ -5,12 +5,15 @@ versionNumber=$1
 releaseNotes=$2
 
 # Branch settings
-devBranch=develop
+developBranch=develop
 masterBranch=master
 releaseBranch=release-v$versionNumber
 
+# Remove temporary release branch from remote
+git push origin --delete release
+
 # Create a release branch from develop branch
-git checkout -b $releaseBranch $devBranch
+git checkout -b $releaseBranch $developBranch
 
 # Commit release notes
 git add CHANGELOG.md
@@ -31,7 +34,7 @@ git tag -a $versionLabel -m "Version $versionNumber tag."
 git push --follow-tags
 
 # Merge release branch back into develop branch
-git checkout $devBranch
+git checkout $developBranch
 git merge --no-ff --no-edit $releaseBranch
 
 # Push develop branch
