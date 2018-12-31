@@ -9,6 +9,14 @@ branches:
   except:
     - /^v\d+\.\d+\.\d+$/
 
+git:
+  depth: false
+
+install:
+  - git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  - git fetch
+  - npm ci
+
 jobs:
   include:
     - stage: release
