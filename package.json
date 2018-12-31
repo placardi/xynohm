@@ -1,5 +1,5 @@
 {
-  "name": "xynohm",
+  "name": "@placardi/xynohm",
   "version": "0.0.0-development",
   "private": true,
   "description": "A VanillaJS way to build user interfaces.",
@@ -24,7 +24,8 @@
     "clean:coverage": "rm -rf coverage",
     "test": "jest --config jest.config.js",
     "test:coverage": "jest --config jest.config.js --coverage",
-    "test:watch": "jest --config jest.config.js --watchAll"
+    "test:watch": "jest --config jest.config.js --watchAll",
+    "release": "./bin/release.sh"
   },
   "repository": {
     "type": "git",
