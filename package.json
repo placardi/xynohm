@@ -6,7 +6,7 @@
     "node": ">= 10.14.1"
   },
   "main": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
