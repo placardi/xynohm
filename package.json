@@ -16,7 +16,7 @@
     "build:dev": "npm-run-all clean:dist test build:webpack:dev type:bundle",
     "build:prod": "npm-run-all clean:dist test build:webpack:prod type:bundle",
     "build:webpack:dev": "webpack --config webpack/dev.config.js",
-    "build:webpack::prod": "webpack --config webpack/prod.config.js",
+    "build:webpack:prod": "webpack --config webpack/prod.config.js",
     "type:check": "tsc",
     "type:bundle": "dts-bundle-generator -o dist/index.d.ts src/index.ts",
     "lint:ts": "tslint -t verbose -p . -c tslint.json",
