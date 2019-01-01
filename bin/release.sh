@@ -36,8 +36,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   git checkout $developBranch
   git merge --no-ff --no-edit $releaseBranch
 
-  SNAPSHOT_VERSION=$(npm --no-git-tag-version version patch | tr -d v)
-  sed -E -i '' 's/"version": ".+"/"version": "'${SNAPSHOT_VERSION}'-SNAPSHOT"/' package.json
+  SNAPSHOT_VERSION=$(npm --no-git-tag-version version patch | tr -d v)-SNAPSHOT
+  git checkout package.json package-lock.json
+  npm --no-git-tag-version version $SNAPSHOT_VERSION
 
   git add package.json package-lock.json
   git commit --no-verify -m "Bumped snapshot version number."
