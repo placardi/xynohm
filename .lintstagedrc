@@ -3,5 +3,5 @@
     "*.{ts,tsx}": ["tslint -c tslint.json"],
     "*.{ts,tsx,js,json,css,md,html}": ["prettier --write", "git add"]
   },
-  "ignore": ["**/dist/*.js", "**/tmp/*.js", "**/coverage/*.js", "node_modules"]
+  "ignore": ["**/dist/*.js", "**/coverage/*.js", "node_modules"]
 }

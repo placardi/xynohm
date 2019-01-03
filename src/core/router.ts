@@ -15,14 +15,20 @@ export class Router implements RouterInterface {
     this.configuration = configuration;
     this.routerOutlet = routerOutlet;
     this.registerAnchorsWithRoutePaths();
-    window.onpopstate = () => this.navigate();
+    window.onpopstate = this.navigate.bind(this, undefined);
   }
 
   public navigate(path?: string): void {
     const pathname: string = path || this.getPathnameWithoutBaseHref();
     const route: RouteInterface = this.matchRoute(pathname);
     this.replaceRouterOutletContent(route);
-    history.pushState(null, route.name, this.createPath(pathname, route.path));
+    if (path) {
+      history.pushState(
+        null,
+        route.name,
+        this.createPath(pathname, route.path)
+      );
+    }
   }
 
   private getPathnameWithoutBaseHref(): string {
