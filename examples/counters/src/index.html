@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>xynohm | Counters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <app-root>
+      <nav>
+        <ul>
+          <li><a routePath="/">Root</a></li>
+          <li><a routePath="/counters">Counters</a></li>
+          <li><a routePath="/somewhere">Somewhere</a></li>
+        </ul>
+      </nav>
+      <router-outlet></router-outlet>
+    </app-root>
+
+    <!-- Module templates -->
+    <!-- prettier-ignore -->
+    ${ require('./modules/root/root.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./modules/counters/counters.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./modules/error/error.template.html') }
+
+    <!-- Component templates -->
+    <!-- prettier-ignore -->
+    ${ require('./components/counters/counters.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./components/counter/counter.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./components/counter-value/counter-value.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./components/counter-colour/counter-colour.template.html') }
+    <!-- prettier-ignore -->
+    ${ require('./components/button/button.template.html') }
+    <!-- prettier-ignore -->
+    ${
+    require('./components/counters-control-panel/counters-control-panel.template.html')
+    }
+  </body>
+</html>

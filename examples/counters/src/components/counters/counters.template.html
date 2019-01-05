@@ -1,0 +1,7 @@
+<template component="CountersComponent" data-count>
+  <app-counter
+    *for="i in {{ count }}"
+    data-id="{{ i }}"
+    data-value="0"
+  ></app-counter>
+</template>

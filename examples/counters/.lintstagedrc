@@ -1,0 +1,10 @@
+{
+  "linters": {
+    "*.{css}": [
+      "stylelint src/**/*.css --config ./.stylelintrc --formatter verbose"
+    ],
+    "*.{ts,tsx}": ["tslint -c tslint.json"],
+    "*.{ts,tsx,js,json,css,md,html}": ["prettier --write", "git add"]
+  },
+  "ignore": ["**/dist", "node_modules"]
+}

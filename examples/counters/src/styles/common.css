@@ -1,0 +1,32 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+app-root,
+router-outlet {
+  padding: 10px;
+}
+
+app-root,
+router-outlet {
+  border: 1px solid black;
+}
+
+nav ul {
+  display: flex;
+}
+
+nav a {
+  display: flex;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+nav a:hover {
+  background: #efefef;
+  border-radius: 5px;
+}
