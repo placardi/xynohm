@@ -2,6 +2,7 @@ const path = require('path');
 const CleanCss = require('clean-css');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
+const { BaseHrefWebpackPlugin } = require('base-href-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
@@ -53,6 +54,19 @@ module.exports = {
           }
         ],
         include: /src/
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'images',
+              publicPath: 'images'
+            }
+          }
+        ]
       }
     ]
   },
@@ -62,6 +76,9 @@ module.exports = {
       filename: 'index.html',
       favicon: false,
       inject: true
+    }),
+    new BaseHrefWebpackPlugin({
+      baseHref: '/'
     }),
     new StyleLintPlugin({
       context: 'src'
