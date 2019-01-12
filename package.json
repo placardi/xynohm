@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "start": "npm-run-all clean start:webpack",
+    "start": "npm-run-all clean:dist start:webpack",
     "start:webpack": "webpack-dev-server --hot --inline --config webpack/dev.config.js",
     "build:dev": "npm-run-all clean:dist test build:webpack:dev type:bundle",
     "build:prod": "npm-run-all clean:dist test build:webpack:prod type:bundle",
