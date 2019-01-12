@@ -1,0 +1,32 @@
+app-button {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  background: #ddd;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+app-button:hover {
+  border: 1px solid black;
+  color: crimson;
+}
+
+app-button[disabled] {
+  pointer-events: none;
+}
+
+app-button > .loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+app-button > .button-text.hidden,
+app-button > .loader.hidden {
+  display: none;
+}

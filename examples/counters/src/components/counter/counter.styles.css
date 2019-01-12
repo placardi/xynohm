@@ -1,0 +1,26 @@
+app-counter {
+  border: 1px solid black;
+}
+
+app-counter {
+  padding: 10px;
+}
+
+app-counter:nth-of-type(n + 2) {
+  margin-left: 10px;
+}
+
+app-counter > p,
+app-counter > .counter-status {
+  margin-bottom: 15px;
+}
+
+app-counter > .counter-status {
+  display: flex;
+  align-items: center;
+}
+
+app-counter > .counter-buttons > button {
+  padding: 5px;
+  cursor: pointer;
+}

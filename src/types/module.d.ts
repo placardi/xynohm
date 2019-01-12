@@ -1,3 +1,4 @@
+import { RouterOutlet } from '../core/router-outlet';
 import { Nameable } from './common';
 import { ComponentDefinition } from './component';
 import { Configuration } from './configuration';
@@ -13,13 +14,13 @@ interface ModuleIntrface extends Nameable, Renderable {
 }
 
 interface Renderable {
-  render(data: object): void;
+  render(data: object): Element;
 }
 
 type ModuleDefinition = new (
   components: ComponentDefinition[],
   configuration: Configuration,
-  routerOutlet: HTMLElement
+  routerOutlet: RouterOutlet
 ) => ModuleIntrface;
 
 export { ModuleIntrface, ModuleDefinition };

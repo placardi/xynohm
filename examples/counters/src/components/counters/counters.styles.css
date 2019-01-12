@@ -1,0 +1,9 @@
+app-counters {
+  border: 1px solid black;
+}
+
+app-counters {
+  display: flex !important;
+  flex-wrap: wrap;
+  padding: 10px;
+}

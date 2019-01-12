@@ -26,12 +26,12 @@ export class TemplateParser implements TemplateParserInterface {
   }
 
   private nodesToHTML(nodes: Node[]): string {
-    const element: HTMLElement = document.createElement('div');
-    while (nodes.length > 0) {
-      const nextChild: Node = nodes.shift() as Node;
-      element.appendChild(document.importNode(nextChild, true));
-    }
-    return element.innerHTML;
+    return nodes.reduce(
+      (html: string, node: Node) =>
+        html +
+        ((node as HTMLElement).outerHTML || (node as HTMLElement).nodeValue),
+      ''
+    );
   }
 
   private parseMoustaches(html: string, model: object): string[] {

@@ -1,0 +1,23 @@
+app-counters-control-panel {
+  padding: 10px;
+}
+
+app-counters-control-panel {
+  border: 1px solid black;
+}
+
+app-counters-control-panel {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+app-counters-control-panel > button:nth-of-type(n + 2) {
+  margin-left: 10px;
+}
+
+app-counters-control-panel > button {
+  padding: 5px;
+  cursor: pointer;
+}

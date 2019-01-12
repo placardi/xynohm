@@ -5,12 +5,13 @@ import {
 } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { ModuleIntrface } from '../types/module';
+import { RouterOutlet } from './router-outlet';
 import { Template } from './template';
 
 export class Module implements ModuleIntrface {
   protected model: object;
-  protected routerOutlet: HTMLElement;
-  protected cachedRouterOutlet: Node;
+  protected routerOutlet: RouterOutlet;
+  protected cachedRouterOutletNodes: NodeList;
   protected components: ComponentDefinition[];
   protected mountedComponents: ComponentInterface[];
   protected configuration: Configuration;
@@ -19,32 +20,34 @@ export class Module implements ModuleIntrface {
   constructor(
     components: ComponentDefinition[],
     configuration: Configuration,
-    routerOutlet: HTMLElement
+    routerOutlet: RouterOutlet
   ) {
     this.components = components;
     this.configuration = configuration;
     this.routerOutlet = routerOutlet;
+    this.mountedComponents = [];
     this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
   }
 
-  public render(data: object): void {
-    if (!this.mountedComponents) {
-      this.mountedComponents = [];
-      this.model = data instanceof Object ? data : {};
-      this.populateRouterOutlet(this.template().process(this.model));
-      this.markElementsAsComponents(this.routerOutlet);
-      this.mountComponents(this.routerOutlet);
-      this.assignDependencies(this.mountedComponents);
-      this.mountedComponents.forEach(component =>
-        component.element.dispatchEvent(this.componentsLoadedEvent)
-      );
-    } else {
-      if (this.cachedRouterOutlet) {
-        this.populateRouterOutlet(this.cachedRouterOutlet.childNodes);
-      }
-      this.mountComponents(this.routerOutlet, true);
-    }
-    this.cachedRouterOutlet = this.cacheRouterOutlet(this.routerOutlet);
+  public render(data: object): Element {
+    this.model = data instanceof Object ? data : {};
+    const routerOutlet: Element = this.mountComponents(
+      Array.from(this.template().process(this.model)).reduce(
+        (element: Element, node: Node) => {
+          if (this.isCustomElement(node)) {
+            this.markElementAsComponent(node as Element);
+          }
+          element.appendChild(node);
+          return element;
+        },
+        document.createElement('router-outlet')
+      )
+    );
+    this.assignDependencies();
+    this.mountedComponents.forEach(component =>
+      component.element.dispatchEvent(this.componentsLoadedEvent)
+    );
+    return routerOutlet;
   }
 
   public mount(
@@ -79,14 +82,14 @@ export class Module implements ModuleIntrface {
         (mutations: MutationRecord[], observer: MutationObserver) => {
           mutations.forEach(mutation => {
             if (mutation.type === 'childList') {
-              this.assignDependencies(this.mountedComponents);
+              this.assignDependencies();
               instance.element.dispatchEvent(this.componentsLoadedEvent);
             }
           });
           observer.disconnect();
         }
       );
-      mutationObserver.observe(this.routerOutlet, {
+      mutationObserver.observe(this.routerOutlet.element(), {
         childList: true,
         attributes: true,
         subtree: true
@@ -107,30 +110,12 @@ export class Module implements ModuleIntrface {
       (componentToRemove.element.parentNode as HTMLElement).removeChild(
         componentToRemove.element
       );
-      this.assignDependencies(this.mountedComponents);
+      this.assignDependencies();
     }
   }
 
   public get name(): string {
     return this.constructor.name;
-  }
-
-  private populateRouterOutlet(nodes: NodeList): void {
-    this.emptyElement(this.routerOutlet);
-    nodes.forEach(node =>
-      this.routerOutlet.appendChild(document.importNode(node, true))
-    );
-    this.removeProcessedAttributes(this.routerOutlet);
-  }
-
-  private cacheRouterOutlet(outlet: HTMLElement): Node {
-    return outlet.cloneNode(true);
-  }
-
-  private emptyElement(element: HTMLElement): void {
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
   }
 
   private template(): Template {
@@ -140,16 +125,22 @@ export class Module implements ModuleIntrface {
     );
   }
 
-  private markElementsAsComponents(content: HTMLElement): void {
-    const customTagRegEx = new RegExp(
-      '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
-      'g'
-    );
+  private markElementsAsComponents(content: Element): void {
     content.querySelectorAll('*').forEach(element => {
-      if (element.tagName.toLowerCase().match(customTagRegEx)) {
+      if (this.isCustomElement(element)) {
         this.markElementAsComponent(element);
       }
     });
+  }
+
+  private isCustomElement(node: Node): boolean {
+    return (
+      node.nodeType === Node.ELEMENT_NODE &&
+      new RegExp(
+        '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
+        'g'
+      ).test((node as Element).tagName.toLowerCase())
+    );
   }
 
   private markElementAsComponent(element: Element): Element {
@@ -172,13 +163,7 @@ export class Module implements ModuleIntrface {
     return element;
   }
 
-  private removeProcessedAttributes(content: Element): void {
-    content
-      .querySelectorAll('*')
-      .forEach(element => element.removeAttribute('processed'));
-  }
-
-  private mountComponents(content: HTMLElement, restore?: boolean): void {
+  private mountComponents(content: Element, restore?: boolean): Element {
     let element: HTMLElement | null = this.getNextUnprocessedElement(content);
     while (element) {
       let mountedElement: HTMLElement | null = null;
@@ -218,9 +203,10 @@ export class Module implements ModuleIntrface {
         element = this.getNextUnprocessedElement(content);
       }
     }
+    return content;
   }
 
-  private getNextUnprocessedElement(content: HTMLElement): HTMLElement | null {
+  private getNextUnprocessedElement(content: Element): HTMLElement | null {
     return content.querySelector('*[component]:not([processed])');
   }
 
@@ -361,23 +347,23 @@ export class Module implements ModuleIntrface {
     }
   }
 
-  private assignDependencies(components: ComponentInterface[]): void {
-    components.forEach(component => {
+  private assignDependencies(): void {
+    this.mountedComponents.forEach(component => {
       const parents: ComponentInterface[] = this.getComponentParents(
         component,
-        components
+        this.mountedComponents
       );
       const children: ComponentInterface[] = this.getComponentChildren(
         component,
-        components
+        this.mountedComponents
       );
       const siblings: ComponentInterface[] = this.getComponentSiblings(
         component,
-        components
+        this.mountedComponents
       );
       const globals: ComponentInterface[] = this.getComponentGlobals(
         component,
-        components,
+        this.mountedComponents,
         parents,
         children,
         siblings

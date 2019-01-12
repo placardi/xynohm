@@ -6,7 +6,5 @@ module.exports = {
   },
   preset: 'ts-jest',
   testEnvironment: 'node',
-  collectCoverageFrom: ['src/core/**/*.{ts,js}'],
-  moduleDirectories: ['node_modules', 'src'],
-  setupFiles: ['./test/setup/dom.js']
+  collectCoverageFrom: ['src/**/*.{ts,js}']
 };

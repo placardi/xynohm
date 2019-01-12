@@ -1,6 +1,6 @@
 {
   "name": "@placardi/xynohm",
-  "version": "0.1.6",
+  "version": "0.2.1",
   "description": "A VanillaJS way to build user interfaces.",
   "engines": {
     "node": ">= 10.14.1"
@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "start": "npm-run-all clean start:webpack",
+    "start": "npm-run-all clean:dist start:webpack",
     "start:webpack": "webpack-dev-server --hot --inline --config webpack/dev.config.js",
     "build:dev": "npm-run-all clean:dist test build:webpack:dev type:bundle",
     "build:prod": "npm-run-all clean:dist test build:webpack:prod type:bundle",
@@ -47,6 +47,7 @@
     "html-webpack-plugin": "^3.2.0",
     "husky": "^1.2.1",
     "jest": "^23.6.0",
+    "jsdom": "^13.1.0",
     "lint-staged": "^8.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "1.15.3",

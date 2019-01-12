@@ -1,0 +1,16 @@
+@import './reset.css';
+@import './normalise.css';
+@import './common.css';
+
+/* Module styles */
+@import '../modules/root/root.styles.css';
+@import '../modules/error/error.styles.css';
+@import '../modules/counters/counters.styles.css';
+
+/* Component styles */
+@import '../components/counters/counters.styles.css';
+@import '../components/counter/counter.styles.css';
+@import '../components/counter-value/counter-value.styles.css';
+@import '../components/counter-colour/counter-colour.styles.css';
+@import '../components/button/button.styles.css';
+@import '../components/counters-control-panel/counters-control-panel.styles.css';

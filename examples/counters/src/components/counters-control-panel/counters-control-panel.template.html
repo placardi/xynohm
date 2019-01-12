@@ -1,0 +1,18 @@
+<template component="CountersControlPanelComponent">
+  <button
+    class="add-counter-button"
+    type="button"
+    name="add-counter-button"
+    _click="CountersControlPanel.add()"
+  >
+    {{ button.add_counter }}
+  </button>
+  <button
+    class="remove-counter-button"
+    type="button"
+    name="remove-counter-button"
+    _click="CountersControlPanel.remove()"
+  >
+    {{ button.remove_counter }}
+  </button>
+</template>

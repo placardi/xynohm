@@ -1,0 +1,18 @@
+app-counter-colour {
+  margin-left: 15px;
+  border: 1px solid #ccc;
+  height: 15px;
+  width: 30px;
+}
+
+app-counter-colour.positive {
+  background: green;
+}
+
+app-counter-colour.negative {
+  background: red;
+}
+
+app-counter-colour.neutral {
+  background: yellow;
+}

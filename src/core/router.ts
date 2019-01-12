@@ -1,32 +1,34 @@
 import { Configuration } from '../types/configuration';
 import { RouteInterface, RouterInterface } from '../types/router';
+import { RouterOutlet } from './router-outlet';
 
 export class Router implements RouterInterface {
   private routes: RouteInterface[];
   private configuration: Configuration;
-  private routerOutlet: HTMLElement;
+  private routerOutlet: RouterOutlet;
 
   constructor(
     routes: RouteInterface[],
     configuration: Configuration,
-    routerOutlet: HTMLElement
+    routerOutlet: RouterOutlet
   ) {
     this.routes = routes;
     this.configuration = configuration;
     this.routerOutlet = routerOutlet;
-    this.registerAnchorsWithRoutePaths();
+    this.registerAnchorsWithRoutePaths(document.body);
     window.onpopstate = this.navigate.bind(this, undefined);
   }
 
   public navigate(path?: string): void {
     const pathname: string = path || this.getPathnameWithoutBaseHref();
     const route: RouteInterface = this.matchRoute(pathname);
-    this.replaceRouterOutletContent(route);
+    this.routerOutlet.replaceContent(pathname, route);
+    this.registerAnchorsWithRoutePaths(this.routerOutlet.element());
     if (path) {
       history.pushState(
         null,
         route.name,
-        this.createPath(pathname, route.path)
+        this.createPath(route.path, pathname)
       );
     }
   }
@@ -49,45 +51,32 @@ export class Router implements RouterInterface {
   }
 
   private isValidRoute(path: string): (route: RouteInterface) => boolean {
-    return (route: RouteInterface) => route.path === path;
+    return (route: RouteInterface) =>
+      route.path ===
+      (path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path);
   }
 
   private isFallbackRoute(route: RouteInterface): boolean {
     return route.path === '**';
   }
 
-  private createPath(requestedPath: string, routePath?: string): string {
+  private createPath(routePath: string, fallbackPath?: string): string {
     const baseHref: string =
       this.configuration.baseHref === '/' ? '' : this.configuration.baseHref;
-    const path = routePath === '**' ? requestedPath : routePath;
+    const path: string = routePath === '**' ? fallbackPath || '' : routePath;
     return location.origin + baseHref + path;
   }
 
-  private replaceRouterOutletContent(route: RouteInterface): void {
-    if (!!route.resolver) {
-      if (!!route.resolver.resolve) {
-        route.resolver.resolve().then(data => route.module.render(data || {}));
-      } else {
-        throw new Error(
-          route.resolver.name + ' must implement a resolve function'
-        );
-      }
-    } else {
-      route.module.render({});
-    }
-    this.registerAnchorsWithRoutePaths(this.routerOutlet);
-  }
-
-  private registerAnchorsWithRoutePaths(content?: HTMLElement): void {
-    (content || document).querySelectorAll('a[routePath]').forEach(element => {
-      const routePath: string | null = element.getAttribute('routePath');
-      if (routePath) {
-        element.setAttribute('href', this.createPath(routePath));
-        element.addEventListener('click', e => {
-          e.preventDefault();
+  private registerAnchorsWithRoutePaths(element: Element): void {
+    element.querySelectorAll('a[routePath]').forEach(anchor => {
+      const routePath: string = anchor.getAttribute('routePath') as string;
+      anchor.setAttribute('href', this.createPath(routePath));
+      anchor.addEventListener('click', e => {
+        e.preventDefault();
+        if (routePath !== this.getPathnameWithoutBaseHref()) {
           this.navigate(routePath);
-        });
-      }
+        }
+      });
     });
   }
 }

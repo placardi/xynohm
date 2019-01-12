@@ -72,7 +72,7 @@ export class Component implements ComponentInterface {
 
   protected present(_data: any, _external?: boolean): void {}
 
-  protected representation(_model: any): void {}
+  protected representation(_model: Model): void {}
 
   protected get states(): States {
     return {
