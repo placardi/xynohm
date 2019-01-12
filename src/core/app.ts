@@ -73,11 +73,7 @@ export class App implements AppInterface {
       definition.path.length > 0 &&
       (definition.path.charAt(0) === '/' || definition.path === '**') &&
       !!definition.module &&
-      definition.module.prototype.__proto__.name === 'Module' &&
-      (!!definition.resolver
-        ? definition.resolver.prototype.__proto__.name === 'Resolver' &&
-          definition.resolver.prototype.resolve
-        : true)
+      (!!definition.resolver ? definition.resolver.prototype.resolve : true)
     );
   }
 
