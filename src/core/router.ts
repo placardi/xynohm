@@ -33,6 +33,19 @@ export class Router implements RouterInterface {
     }
   }
 
+  public registerAnchorsWithRoutePaths(element: Element): void {
+    element.querySelectorAll('a[routePath]').forEach(anchor => {
+      const routePath: string = anchor.getAttribute('routePath') as string;
+      anchor.setAttribute('href', this.createPath(routePath));
+      anchor.addEventListener('click', e => {
+        e.preventDefault();
+        if (routePath !== this.getPathnameWithoutBaseHref()) {
+          this.navigate(routePath);
+        }
+      });
+    });
+  }
+
   private getPathnameWithoutBaseHref(): string {
     return this.removeTrailingSlash(
       this.configuration.baseHref === '/'
@@ -70,18 +83,5 @@ export class Router implements RouterInterface {
       this.configuration.baseHref === '/' ? '' : this.configuration.baseHref;
     const path: string = routePath === '**' ? fallbackPath || '' : routePath;
     return location.origin + baseHref + path;
-  }
-
-  private registerAnchorsWithRoutePaths(element: Element): void {
-    element.querySelectorAll('a[routePath]').forEach(anchor => {
-      const routePath: string = anchor.getAttribute('routePath') as string;
-      anchor.setAttribute('href', this.createPath(routePath));
-      anchor.addEventListener('click', e => {
-        e.preventDefault();
-        if (routePath !== this.getPathnameWithoutBaseHref()) {
-          this.navigate(routePath);
-        }
-      });
-    });
   }
 }
