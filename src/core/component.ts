@@ -6,26 +6,20 @@ import {
   States,
   Views
 } from '../types/component';
-import { ModuleIntrface } from '../types/module';
+import { ComponentMounter } from '../types/mounter';
 import { Template } from './template';
 
 export class Component implements ComponentInterface {
   private _components: Dependencies;
   private _uuid: string;
   private _element: HTMLElement;
-  private _module: ModuleIntrface;
+  private _mounter: ComponentMounter;
   private _model: Model = { transient: {} };
 
-  constructor(
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ) {
+  constructor(model: Model, uuid: string, element: HTMLElement) {
     this._model = { ...this._model, ...model };
     this._uuid = uuid;
     this._element = element;
-    this._module = module;
     this._element.addEventListener('__components_loaded__', () =>
       this.states.render(this._model)
     );
@@ -39,16 +33,16 @@ export class Component implements ComponentInterface {
     return this._uuid;
   }
 
-  public get module(): ModuleIntrface {
-    return this._module;
-  }
-
   public get components(): Dependencies {
     return this._components;
   }
 
   public get element(): HTMLElement {
     return this._element;
+  }
+
+  public get mounter(): ComponentMounter {
+    return this._mounter;
   }
 
   public static get template(): Template {
@@ -64,6 +58,10 @@ export class Component implements ComponentInterface {
 
   public setDependencies(dependencies: Dependencies): void {
     this._components = dependencies;
+  }
+
+  public setMounter(mounter: ComponentMounter): void {
+    this._mounter = mounter;
   }
 
   protected get model(): Model {

@@ -1,4 +1,5 @@
-import { RouteInterface } from '../types';
+import { ComponentInterface } from '../types/component';
+import { RouteInterface } from '../types/router';
 import { RouterOutletInterface } from '../types/router-outlet';
 import { AppRoot } from './app-root';
 
@@ -21,13 +22,24 @@ export class RouterOutlet implements RouterOutletInterface {
         location.pathname
       ] = this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
     } else {
+      const appData: object = this.appRoot.getAppData();
+      const components: ComponentInterface[] = this.appRoot.getMountedComponents();
       if (!!route.resolver) {
         route.resolver.resolve().then(data => {
-          this.routerOutletCache[pathname] = route.module.render(data || {});
+          this.routerOutletCache[pathname] = route.module.render(
+            {
+              ...appData,
+              ...data
+            },
+            components
+          );
           this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
         });
       } else {
-        this.routerOutletCache[pathname] = route.module.render({});
+        this.routerOutletCache[pathname] = route.module.render(
+          appData,
+          components
+        );
         this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
       }
     }

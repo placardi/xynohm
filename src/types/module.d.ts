@@ -1,26 +1,18 @@
 import { RouterOutlet } from '../core/router-outlet';
 import { Nameable } from './common';
-import { ComponentDefinition } from './component';
+import { ComponentDefinition, ComponentInterface } from './component';
 import { Configuration } from './configuration';
 
-interface ModuleIntrface extends Nameable, Renderable {
-  mount(
-    component: ComponentDefinition,
-    properties: object,
-    events?: Attr[],
-    internal?: boolean
-  ): HTMLElement;
-  unmount(elementID: string): void;
-}
+interface ModuleInterface extends Nameable, Renderable {}
 
 interface Renderable {
-  render(data: object): Element;
+  render(data: object, components: ComponentInterface[]): HTMLElement;
 }
 
 type ModuleDefinition = new (
   components: ComponentDefinition[],
   configuration: Configuration,
   routerOutlet: RouterOutlet
-) => ModuleIntrface;
+) => ModuleInterface;
 
-export { ModuleIntrface, ModuleDefinition };
+export { ModuleInterface, ModuleDefinition };

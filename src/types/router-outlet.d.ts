@@ -1,7 +1,8 @@
+import { WithElement } from './common';
+import { ComponentInterface } from './component';
 import { RouteInterface } from './router';
 
-interface RouterOutletInterface {
-  element(): Element;
+interface RouterOutletInterface extends WithElement {
   replaceContent(pathname: string, route: RouteInterface): void;
 }
 

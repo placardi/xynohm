@@ -1,5 +1,5 @@
 import { Nameable } from './common';
-import { ModuleIntrface } from './module';
+import { ComponentMounter } from './mounter';
 import { TemplateInterface } from './template';
 
 type Action = (data?: any, external?: boolean) => void;
@@ -36,19 +36,14 @@ interface Dependencies {
 
 interface ComponentInterface extends Nameable, Unique {
   readonly actions: Actions;
-  readonly module: ModuleIntrface;
   readonly element: HTMLElement;
   readonly components: Dependencies;
   setDependencies(dependencies: Dependencies): void;
+  setMounter(mounter: ComponentMounter): void;
 }
 
 interface ComponentDefinition extends Templateable {
-  new (
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ): ComponentInterface;
+  new (model: Model, uuid: string, element: HTMLElement): ComponentInterface;
 }
 
 interface Templateable {
