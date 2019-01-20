@@ -1,0 +1,13 @@
+app-header {
+  display: flex !important;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid black;
+}
+
+app-header > .logo {
+  height: 40px;
+  margin-right: 10px;
+}

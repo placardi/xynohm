@@ -1,20 +1,8 @@
-import {
-  Actions,
-  Component,
-  Model,
-  ModuleIntrface,
-  States,
-  Views
-} from '@placardi/xynohm';
+import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
 
 export class CounterValueComponent extends Component {
-  constructor(
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ) {
-    super(model, uuid, element, module);
+  constructor(model: Model, uuid: string, element: HTMLElement) {
+    super(model, uuid, element);
   }
 
   public get actions(): Actions {

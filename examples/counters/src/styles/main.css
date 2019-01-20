@@ -8,6 +8,8 @@
 @import '../modules/counters/counters.styles.css';
 
 /* Component styles */
+@import '../components/loader/loader.styles.css';
+@import '../components/header/header.styles.css';
 @import '../components/counters/counters.styles.css';
 @import '../components/counter/counter.styles.css';
 @import '../components/counter-value/counter-value.styles.css';

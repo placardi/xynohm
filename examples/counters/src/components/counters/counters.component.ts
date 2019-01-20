@@ -1,21 +1,9 @@
-import {
-  Actions,
-  Component,
-  Model,
-  ModuleIntrface,
-  States,
-  Views
-} from '@placardi/xynohm';
+import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
 import { CounterComponent } from '../counter/counter.component';
 
 export class CountersComponent extends Component {
-  constructor(
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ) {
-    super(model, uuid, element, module);
+  constructor(model: Model, uuid: string, element: HTMLElement) {
+    super(model, uuid, element);
   }
 
   public get actions(): Actions {
@@ -58,7 +46,7 @@ export class CountersComponent extends Component {
     return {
       add: (_model: Model, element: HTMLElement) => {
         element.appendChild(
-          this.module.mount(CounterComponent, {
+          this.mounter.mountComponent(CounterComponent, {
             id: this.components.children.counter
               ? this.components.children.counter.length
               : 0,
@@ -68,7 +56,7 @@ export class CountersComponent extends Component {
       },
       remove: (_model: Model, element: HTMLElement) => {
         if (element.children.length > 0) {
-          this.module.unmount(
+          this.mounter.unmountComponent(
             (element.lastElementChild as HTMLElement).getAttribute(
               'elementID'
             ) as string

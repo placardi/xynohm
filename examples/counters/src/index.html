@@ -7,7 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
+    <app-loader>
+      ${ require('./components/loader/loader.template.html') }
+    </app-loader>
     <app-root>
+      <app-header></app-header>
       <nav>
         <ul>
           <li><a routePath="/">Root</a></li>
@@ -27,6 +31,8 @@
     ${ require('./modules/error/error.template.html') }
 
     <!-- Component templates -->
+    <!-- prettier-ignore -->
+    ${ require('./components/header/header.template.html') }
     <!-- prettier-ignore -->
     ${ require('./components/counters/counters.template.html') }
     <!-- prettier-ignore -->

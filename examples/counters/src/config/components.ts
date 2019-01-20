@@ -5,8 +5,10 @@ import { CounterValueComponent } from '../components/counter-value/counter-value
 import { CounterComponent } from '../components/counter/counter.component';
 import { CountersControlPanelComponent } from '../components/counters-control-panel/counters-control-panel.component';
 import { CountersComponent } from '../components/counters/counters.component';
+import { HeaderComponent } from '../components/header/header.component';
 
 export const components: ComponentDefinition[] = [
+  HeaderComponent,
   CountersComponent,
   CounterComponent,
   CounterValueComponent,
