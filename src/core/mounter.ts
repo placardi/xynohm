@@ -171,6 +171,13 @@ export class Mounter implements MounterInterface {
       );
       this.markElementsAsComponents(mountedElement);
       if (mountedElement) {
+        Array.from(element.attributes).forEach(attribute => {
+          try {
+            mountedElement.setAttribute(attribute.name, attribute.value);
+          } catch (e) {
+            return;
+          }
+        });
         (element.parentNode as Node).replaceChild(mountedElement, element);
         element = this.getNextUnprocessedElement(content);
       }
