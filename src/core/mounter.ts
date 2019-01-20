@@ -68,6 +68,10 @@ export class Mounter implements MounterInterface {
         return element;
       }, document.createElement(sourceElement.tagName.toLowerCase()))
     );
+    this.mountedElement = this.copyAttributes(
+      sourceElement,
+      this.mountedElement
+    );
     (sourceElement.parentNode as Node).replaceChild(
       this.mountedElement,
       sourceElement
@@ -171,14 +175,10 @@ export class Mounter implements MounterInterface {
       );
       this.markElementsAsComponents(mountedElement);
       if (mountedElement) {
-        Array.from(element.attributes).forEach(attribute => {
-          try {
-            mountedElement.setAttribute(attribute.name, attribute.value);
-          } catch (e) {
-            return;
-          }
-        });
-        (element.parentNode as Node).replaceChild(mountedElement, element);
+        (element.parentNode as Node).replaceChild(
+          this.copyAttributes(element, mountedElement),
+          element
+        );
         element = this.getNextUnprocessedElement(content);
       }
     }
@@ -300,6 +300,17 @@ export class Mounter implements MounterInterface {
       element.appendChild(nodesArray.shift());
     }
     return element;
+  }
+
+  private copyAttributes(from: Element, to: HTMLElement): HTMLElement {
+    Array.from(from.attributes).forEach(attribute => {
+      try {
+        to.setAttribute(attribute.name, attribute.value);
+      } catch (e) {
+        return;
+      }
+    });
+    return to;
   }
 
   private getEvents(attributes: NamedNodeMap): Attr[] {
