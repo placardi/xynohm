@@ -1,4 +1,4 @@
-import { GuardDefinition } from '../../../../src/types/guard';
+import { GuardDefinition } from '@placardi/xynohm';
 import { LanguageGuard } from '../guards/language.guard';
 import { TitleGuard } from '../guards/title.guard';
 
