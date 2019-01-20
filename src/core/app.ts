@@ -41,7 +41,7 @@ export class App implements AppInterface {
 
   public run(): Completable {
     this.setBaseHref();
-    document.addEventListener('DOMContentLoaded', this.onDOMLoaed.bind(this));
+    document.addEventListener('DOMContentLoaded', this.onDOMLoaded.bind(this));
     return this;
   }
 
@@ -49,9 +49,10 @@ export class App implements AppInterface {
     this.onReady = executable;
   }
 
-  private onDOMLoaed(): void {
+  private onDOMLoaded(): void {
     this.processGuards().then(data => {
       this.appRoot.mountComponents(data);
+      this.router.registerAnchorsWithRoutePaths(this.appRoot.element());
       this.router.navigate();
       if (!!this.onReady) {
         this.onReady();

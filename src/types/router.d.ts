@@ -7,6 +7,7 @@ interface RouterInterface extends Navigateable {}
 
 interface Navigateable {
   navigate(path?: string): void;
+  registerAnchorsWithRoutePaths(element: Element): void;
 }
 
 interface RouteInterface extends Nameable, WithPath {
