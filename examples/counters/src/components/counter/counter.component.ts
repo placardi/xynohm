@@ -1,19 +1,8 @@
-import {
-  Actions,
-  Component,
-  Model,
-  ModuleIntrface,
-  States
-} from '@placardi/xynohm';
+import { Actions, Component, Model, States } from '@placardi/xynohm';
 
 export class CounterComponent extends Component {
-  constructor(
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ) {
-    super(model, uuid, element, module);
+  constructor(model: Model, uuid: string, element: HTMLElement) {
+    super(model, uuid, element);
   }
 
   public get actions(): Actions {
@@ -56,6 +45,7 @@ export class CounterComponent extends Component {
         { value: model.value },
         true
       );
+      this.components.globals.header[0].paintRandom(null, true);
     }
     if (this.states.negative(model) && !external) {
       this.components.children.counterColour[0].paintNegative(null, true);
@@ -63,6 +53,7 @@ export class CounterComponent extends Component {
         { value: model.value },
         true
       );
+      this.components.globals.header[0].paintRandom(null, true);
     }
     if (this.states.neutral(model) && !external) {
       this.components.children.counterColour[0].paintNeutral(null, true);
@@ -70,6 +61,7 @@ export class CounterComponent extends Component {
         { value: model.value },
         true
       );
+      this.components.globals.header[0].paintRandom(null, true);
     }
   }
 }

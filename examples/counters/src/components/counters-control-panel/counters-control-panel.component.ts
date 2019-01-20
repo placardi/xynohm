@@ -1,19 +1,8 @@
-import {
-  Actions,
-  Component,
-  Model,
-  ModuleIntrface,
-  States
-} from '@placardi/xynohm';
+import { Actions, Component, Model, States } from '@placardi/xynohm';
 
 export class CountersControlPanelComponent extends Component {
-  constructor(
-    model: Model,
-    uuid: string,
-    element: HTMLElement,
-    module: ModuleIntrface
-  ) {
-    super(model, uuid, element, module);
+  constructor(model: Model, uuid: string, element: HTMLElement) {
+    super(model, uuid, element);
   }
 
   public get actions(): Actions {
