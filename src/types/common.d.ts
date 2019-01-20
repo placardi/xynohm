@@ -1,5 +1,11 @@
+type Executable = (...args: any[]) => void;
+
 interface Nameable {
   readonly name: string;
 }
 
-export { Nameable };
+interface WithElement {
+  element(): Element;
+}
+
+export { Nameable, Executable, WithElement };

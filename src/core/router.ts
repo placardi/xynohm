@@ -34,9 +34,11 @@ export class Router implements RouterInterface {
   }
 
   private getPathnameWithoutBaseHref(): string {
-    return this.configuration.baseHref === '/'
-      ? location.pathname
-      : location.pathname.replace(this.configuration.baseHref, '');
+    return this.removeTrailingSlash(
+      this.configuration.baseHref === '/'
+        ? location.pathname
+        : location.pathname.replace(this.configuration.baseHref, '')
+    );
   }
 
   private matchRoute(path: string): RouteInterface {
@@ -50,10 +52,13 @@ export class Router implements RouterInterface {
     return route;
   }
 
+  private removeTrailingSlash(path: string): string {
+    return path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+  }
+
   private isValidRoute(path: string): (route: RouteInterface) => boolean {
     return (route: RouteInterface) =>
-      route.path ===
-      (path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path);
+      route.path === this.removeTrailingSlash(path);
   }
 
   private isFallbackRoute(route: RouteInterface): boolean {

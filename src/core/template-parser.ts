@@ -210,6 +210,9 @@ export class TemplateParser implements TemplateParserInterface {
           node.textContent = content;
         }
       }
+      if (node.nodeType === Node.COMMENT_NODE) {
+        return;
+      }
       processedNodes.push(node);
     });
     return processedNodes;

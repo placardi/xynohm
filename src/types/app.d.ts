@@ -1,7 +1,13 @@
-interface AppInterface extends Runnable {}
+import { Executable } from './common';
 
-interface Runnable {
-  run(): void;
+interface AppInterface extends Runnable, Completable {}
+
+interface Completable {
+  ready(executable: Executable): void;
 }
 
-export { AppInterface };
+interface Runnable {
+  run(): Completable;
+}
+
+export { AppInterface, Runnable, Completable };

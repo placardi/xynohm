@@ -1,6 +1,6 @@
 {
   "name": "@placardi/xynohm",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A VanillaJS way to build user interfaces.",
   "engines": {
     "node": ">= 10.14.1"
@@ -17,6 +17,7 @@
     "build:prod": "npm-run-all clean:dist test build:webpack:prod type:bundle",
     "build:webpack:dev": "webpack --config webpack/dev.config.js",
     "build:webpack:prod": "webpack --config webpack/prod.config.js",
+    "build:webpack:stats": "webpack --config webpack/stats.config.js",
     "type:check": "tsc",
     "type:bundle": "dts-bundle-generator -o dist/index.d.ts src/index.ts",
     "lint:ts": "tslint -t verbose -p . -c tslint.json",
@@ -25,6 +26,7 @@
     "test": "jest --config jest.config.js",
     "test:coverage": "jest --config jest.config.js --coverage",
     "test:watch": "jest --config jest.config.js --watchAll",
+    "bundle:analyser": "npm-run-all clean:dist build:webpack:stats",
     "release": "./bin/release.sh"
   },
   "repository": {
@@ -57,11 +59,12 @@
     "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.2.2",
     "webpack": "^4.28.2",
+    "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.5"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@babel/polyfill": "^7.2.5"
   },
   "config": {

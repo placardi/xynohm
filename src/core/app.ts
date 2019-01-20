@@ -1,6 +1,8 @@
-import { AppInterface } from '../types/app';
+import { AppInterface, Completable } from '../types/app';
+import { Executable } from '../types/common';
 import { ComponentDefinition } from '../types/component';
 import { Configuration } from '../types/configuration';
+import { GuardDefinition } from '../types/guard';
 import {
   RouteDefinitionInterface,
   RouteInterface,
@@ -16,15 +18,19 @@ export class App implements AppInterface {
   private router: RouterInterface;
   private appRoot: AppRoot;
   private routerOutlet: RouterOutlet;
+  private guards: GuardDefinition[];
+  private onReady: Executable;
 
   constructor(
     components: ComponentDefinition[],
     configuration: Configuration,
-    routeDefinitions: RouteDefinitionInterface[]
+    routeDefinitions: RouteDefinitionInterface[],
+    guards: GuardDefinition[]
   ) {
+    this.guards = guards || [];
     this.components = components;
     this.configuration = configuration;
-    this.appRoot = new AppRoot();
+    this.appRoot = new AppRoot(this.configuration, components);
     this.routerOutlet = new RouterOutlet(this.appRoot);
     this.router = new Router(
       this.initRoutes(routeDefinitions),
@@ -33,9 +39,37 @@ export class App implements AppInterface {
     );
   }
 
-  public run(): void {
+  public run(): Completable {
     this.setBaseHref();
-    document.addEventListener('DOMContentLoaded', () => this.router.navigate());
+    document.addEventListener('DOMContentLoaded', this.onDOMLoaed.bind(this));
+    return this;
+  }
+
+  public ready(executable: Executable): void {
+    this.onReady = executable;
+  }
+
+  private onDOMLoaed(): void {
+    this.processGuards().then(data => {
+      this.appRoot.mountComponents(data);
+      this.router.navigate();
+      if (!!this.onReady) {
+        this.onReady();
+      }
+    });
+  }
+
+  private processGuards(): Promise<object> {
+    return this.guards.reduce(
+      (data: Promise<object>, guard: GuardDefinition) => {
+        return new guard().check().then(result => {
+          return data.then(results => {
+            return { ...results, ...result };
+          });
+        });
+      },
+      Promise.resolve({})
+    );
   }
 
   private initRoutes(
