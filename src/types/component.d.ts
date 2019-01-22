@@ -2,7 +2,7 @@ import { Nameable } from './common';
 import { ComponentMounter } from './mounter';
 import { TemplateInterface } from './template';
 
-type Action = (data?: any, external?: boolean) => void;
+type Action = (data?: any, external?: boolean, event?: Event) => void;
 type State = (model: Model) => boolean;
 type View = (model: Model, element: HTMLElement) => void;
 type Render = (model: Model, external?: boolean) => void;
