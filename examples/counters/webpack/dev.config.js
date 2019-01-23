@@ -3,6 +3,7 @@ const path = require('path');
 const merge = require('webpack-merge');
 const baseConfig = require('./base.config.js');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ErrorOverlayPlugin = require('error-overlay-webpack-plugin');
 
 const getDirectoriesRecursive = dir => [
   dir,
@@ -16,7 +17,7 @@ const getDirectoriesRecursive = dir => [
 
 module.exports = merge(baseConfig, {
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: 'cheap-module-source-map',
   output: {
     filename: '[name].js'
   },
@@ -48,6 +49,7 @@ module.exports = merge(baseConfig, {
     ]
   },
   plugins: [
+    new ErrorOverlayPlugin(),
     new MiniCssExtractPlugin({
       filename: 'styles.css'
     })
