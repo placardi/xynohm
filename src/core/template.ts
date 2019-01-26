@@ -14,4 +14,8 @@ export class Template implements TemplateInterface {
   public process(model: object): NodeList {
     return this.parser.parse(this.template.content, model);
   }
+
+  public getProperties(): string[] {
+    return Object.keys(this.template.dataset).map(key => key.toLowerCase());
+  }
 }

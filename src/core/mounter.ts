@@ -8,7 +8,7 @@ import { Configuration } from '../types/configuration';
 import { MounterInterface } from '../types/mounter';
 
 export class Mounter implements MounterInterface {
-  private addData: object;
+  private appData: object;
   private content: WithElement;
   private configuration: Configuration;
   private components: ComponentDefinition[];
@@ -21,7 +21,7 @@ export class Mounter implements MounterInterface {
     configuration: Configuration,
     components: ComponentDefinition[]
   ) {
-    this.addData = {};
+    this.appData = {};
     this.content = content;
     this.mountedComponents = [];
     this.components = components;
@@ -58,7 +58,7 @@ export class Mounter implements MounterInterface {
     data: object
   ): ComponentInterface[] {
     const sourceElement: Element = this.content.element();
-    this.addData = { ...this.addData, ...data };
+    this.appData = { ...this.appData, ...data };
     this.mountedElement = this._mountComponents(
       Array.from(nodes).reduce((element: HTMLElement, node: Node) => {
         if (this.isCustomElement(node)) {
@@ -124,7 +124,12 @@ export class Mounter implements MounterInterface {
     events?: Attr[],
     internal?: boolean
   ): HTMLElement {
-    const model = { ...this.addData, ...properties };
+    component.template.getProperties().forEach(property => {
+      if (!(property in properties)) {
+        properties = { ...properties, [property]: null };
+      }
+    });
+    const model = { ...this.appData, ...properties };
     const tagName: string =
       this.configuration.tagPrefix +
       '-' +
@@ -293,15 +298,14 @@ export class Mounter implements MounterInterface {
 
   private unwrapDataset(dataset: DOMStringMap): object {
     return Object.entries(dataset)
-      .filter(([_key, value]) => !!value)
-      .map(([_key, value]) => [_key, this.convertDataType(value as string)])
-      .reduce((obj: object, [k, v]) => ({ ...obj, [k]: v }), {});
+      .map(([key, value]) => [key, this.convertDataType(value as string)])
+      .reduce((obj: object, [key, value]) => ({ ...obj, [key]: value }), {});
   }
 
   private convertDataType(data: string): any {
     const hasBracesRegEx: RegExp = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/;
     if (data.length === 0) {
-      return undefined;
+      return '';
     }
     if (data === 'true') {
       return true;

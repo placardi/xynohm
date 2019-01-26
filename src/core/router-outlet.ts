@@ -28,6 +28,11 @@ export class RouterOutlet implements RouterOutletInterface {
       const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
       if (!!route.resolver) {
         route.resolver.resolve().then(data => {
+          route.module.template.getProperties().forEach(property => {
+            if (!(property in data)) {
+              data = { ...data, [property]: null };
+            }
+          });
           this.routerOutletCache[pathname] = route.module.render(
             {
               ...appData,
