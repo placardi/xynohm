@@ -1,3 +1,5 @@
+import { TemplateInterface } from './template';
+
 type Executable = (...args: any[]) => void;
 
 interface Nameable {
@@ -8,4 +10,8 @@ interface WithElement {
   element(): Element;
 }
 
-export { Nameable, Executable, WithElement };
+interface Templateable {
+  readonly template: TemplateInterface;
+}
+
+export { Nameable, Executable, WithElement, Templateable };

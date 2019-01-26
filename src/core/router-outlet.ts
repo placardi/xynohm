@@ -28,7 +28,7 @@ export class RouterOutlet implements RouterOutletInterface {
       const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
       if (!!route.resolver) {
         route.resolver.resolve().then(data => {
-          route.module.template.getProperties().forEach(property => {
+          route.module.template.getProperties().forEach((property: string) => {
             if (!(property in data)) {
               data = { ...data, [property]: null };
             }
