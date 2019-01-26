@@ -163,13 +163,22 @@ export class Mounter implements MounterInterface {
   }
 
   private isCustomElement(node: Node): boolean {
-    return (
-      node.nodeType === Node.ELEMENT_NODE &&
-      new RegExp(
-        '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
-        'g'
-      ).test((node as Element).tagName.toLowerCase())
-    );
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName: string = (node as Element).tagName.toLowerCase();
+      const componentName: string = this.dashToCamelCase(
+        tagName.replace(this.configuration.tagPrefix.toLowerCase() + '-', '')
+      );
+      const componentNames: string[] = this.components.map(component =>
+        this.lcfirst(this.getComponentName(component, true))
+      );
+      return (
+        new RegExp(
+          '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
+          'gi'
+        ).test(tagName) && componentNames.indexOf(componentName) !== -1
+      );
+    }
+    return false;
   }
 
   private markElementAsComponent(element: Element): Element {
@@ -190,9 +199,6 @@ export class Mounter implements MounterInterface {
       const componentIndex = this.components
         .map(component => this.getComponentName(component).toLowerCase())
         .indexOf(componentName.toLowerCase());
-      if (componentIndex === -1) {
-        throw new Error(`Component for '${elementTag}' tag is not defined`);
-      }
       const mountedElement: HTMLElement = this._mountComponent(
         this.components[componentIndex],
         this.unwrapDataset(element.dataset),
