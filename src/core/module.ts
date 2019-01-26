@@ -28,6 +28,14 @@ export class Module implements ModuleInterface {
     return this.mounter.getMountedElement();
   }
 
+  public getMountedComponents(): ComponentInterface[] {
+    return this.mounter.getMountedComponents();
+  }
+
+  public assignDependencies(components: ComponentInterface[]): void {
+    this.mounter.assignDependencies(components);
+  }
+
   public get name(): string {
     return this.constructor.name;
   }

@@ -77,10 +77,6 @@ export class Mounter implements MounterInterface {
       sourceElement
     );
     this.mountedComponents = this.mountedComponents.concat(mountedComponents);
-    this.assignDependencies();
-    this.mountedComponents.forEach(component =>
-      component.element.dispatchEvent(this.componentsLoadedEvent)
-    );
     return this.mountedComponents;
   }
 
@@ -92,7 +88,37 @@ export class Mounter implements MounterInterface {
     return this.mountedElement;
   }
 
-  public _mountComponent(
+  public assignDependencies(components?: ComponentInterface[]): void {
+    (components || this.mountedComponents).forEach(component => {
+      const parents: ComponentInterface[] = this.getComponentParents(
+        component,
+        components || this.mountedComponents
+      );
+      const children: ComponentInterface[] = this.getComponentChildren(
+        component,
+        components || this.mountedComponents
+      );
+      const siblings: ComponentInterface[] = this.getComponentSiblings(
+        component,
+        components || this.mountedComponents
+      );
+      const globals: ComponentInterface[] = this.getComponentGlobals(
+        component,
+        components || this.mountedComponents,
+        parents,
+        children,
+        siblings
+      );
+      component.setDependencies({
+        parents: this.groupByComponentName(parents),
+        children: this.groupByComponentName(children),
+        siblings: this.groupByComponentName(siblings),
+        globals: this.groupByComponentName(globals)
+      });
+    });
+  }
+
+  private _mountComponent(
     component: ComponentDefinition,
     properties: object,
     events?: Attr[],
@@ -363,36 +389,6 @@ export class Mounter implements MounterInterface {
         "Attempting to call '" + actionName + "' of an undefined component"
       );
     }
-  }
-
-  private assignDependencies(): void {
-    this.mountedComponents.forEach(component => {
-      const parents: ComponentInterface[] = this.getComponentParents(
-        component,
-        this.mountedComponents
-      );
-      const children: ComponentInterface[] = this.getComponentChildren(
-        component,
-        this.mountedComponents
-      );
-      const siblings: ComponentInterface[] = this.getComponentSiblings(
-        component,
-        this.mountedComponents
-      );
-      const globals: ComponentInterface[] = this.getComponentGlobals(
-        component,
-        this.mountedComponents,
-        parents,
-        children,
-        siblings
-      );
-      component.setDependencies({
-        parents: this.groupByComponentName(parents),
-        children: this.groupByComponentName(children),
-        siblings: this.groupByComponentName(siblings),
-        globals: this.groupByComponentName(globals)
-      });
-    });
   }
 
   private groupByComponentName(components: ComponentInterface[]): Actionable {

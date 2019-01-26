@@ -7,6 +7,8 @@ interface ModuleInterface extends Nameable, Renderable {}
 
 interface Renderable {
   render(data: object, components: ComponentInterface[]): HTMLElement;
+  getMountedComponents(): ComponentInterface[];
+  assignDependencies(components: ComponentInterface[]): void;
 }
 
 type ModuleDefinition = new (
