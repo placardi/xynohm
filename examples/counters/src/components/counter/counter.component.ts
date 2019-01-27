@@ -1,4 +1,4 @@
-import { Actions, Component, Model, States } from '@placardi/xynohm';
+import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
 
 export class CounterComponent extends Component {
   constructor(model: Model, uuid: string, element: HTMLElement) {
@@ -12,7 +12,11 @@ export class CounterComponent extends Component {
       subtract: (data?: any, external?: boolean) =>
         this.present({ decrement: data.decrement || 1 }, external),
       reset: (data?: any, external?: boolean) =>
-        this.present({ value: data.value || 0 }, external)
+        this.present({ value: data.value || 0 }, external),
+      addHighlight: (_data?: any, external?: boolean) =>
+        this.present({ highlight: true }, external),
+      removeHighlight: (_data?: any, external?: boolean) =>
+        this.present({ highlight: false }, external)
     };
   }
 
@@ -26,6 +30,19 @@ export class CounterComponent extends Component {
     if ('value' in data) {
       this.model.value = data.value;
     }
+    if ('highlight' in data) {
+      this.model.highlight = data.highlight;
+    }
+    if ('increment' in data || 'decrement' in data || 'value' in data) {
+      this.element.dispatchEvent(
+        new CustomEvent('custom-event', {
+          detail: {
+            uuid: this.uuid,
+            value: this.model.value
+          }
+        })
+      );
+    }
     this.states.render(this.model, external);
   }
 
@@ -34,7 +51,27 @@ export class CounterComponent extends Component {
       ...super.states,
       positive: (model: Model) => model.value > 0,
       negative: (model: Model) => model.value < 0,
-      neutral: (model: Model) => model.value === 0
+      neutral: (model: Model) => model.value === 0,
+      withHighlight: (model: Model) => !!model.highlight,
+      withoutHighlight: (model: Model) => !model.highlight
+    };
+  }
+
+  protected representation(model: Model): void {
+    if (this.states.withHighlight(model)) {
+      this.views.withHighlight(model, this.element);
+    }
+    if (this.states.withoutHighlight(model)) {
+      this.views.withoutHighlight(model, this.element);
+    }
+  }
+
+  protected get views(): Views {
+    return {
+      withHighlight: (_model: Model, element: HTMLElement) =>
+        element.classList.add('highlighted'),
+      withoutHighlight: (_model: Model, element: HTMLElement) =>
+        element.classList.remove('highlighted')
     };
   }
 
