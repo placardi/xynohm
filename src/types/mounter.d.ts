@@ -13,6 +13,7 @@ interface MounterInterface extends ComponentMounter {
   ): ComponentInterface[];
   getMountedComponents(): ComponentInterface[];
   getMountedElement(): HTMLElement;
+  assignDependencies(components?: ComponentInterface[]): void;
 }
 
 export { ComponentMounter, MounterInterface };

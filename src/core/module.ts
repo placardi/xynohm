@@ -22,17 +22,25 @@ export class Module implements ModuleInterface {
     const model: object = data instanceof Object ? data : {};
     this.mounter.mountComponents(
       components,
-      this.template().process(model),
+      this.template.process(model),
       model
     );
     return this.mounter.getMountedElement();
+  }
+
+  public getMountedComponents(): ComponentInterface[] {
+    return this.mounter.getMountedComponents();
+  }
+
+  public assignDependencies(components: ComponentInterface[]): void {
+    this.mounter.assignDependencies(components);
   }
 
   public get name(): string {
     return this.constructor.name;
   }
 
-  private template(): Template {
+  public get template(): Template {
     return new Template(
       document.querySelector('template[module="' + this.name + '"]') ||
         document.createElement('template')

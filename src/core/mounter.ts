@@ -8,7 +8,7 @@ import { Configuration } from '../types/configuration';
 import { MounterInterface } from '../types/mounter';
 
 export class Mounter implements MounterInterface {
-  private addData: object;
+  private appData: object;
   private content: WithElement;
   private configuration: Configuration;
   private components: ComponentDefinition[];
@@ -21,7 +21,7 @@ export class Mounter implements MounterInterface {
     configuration: Configuration,
     components: ComponentDefinition[]
   ) {
-    this.addData = {};
+    this.appData = {};
     this.content = content;
     this.mountedComponents = [];
     this.components = components;
@@ -43,8 +43,13 @@ export class Mounter implements MounterInterface {
       component => component.uuid === elementID
     );
     if (componentToRemove) {
-      const index: number = this.mountedComponents.indexOf(componentToRemove);
-      this.mountedComponents.splice(index, 1);
+      const componentAndChildren: ComponentInterface[] = [
+        componentToRemove,
+        ...this.getComponentChildren(componentToRemove, this.mountedComponents)
+      ];
+      this.mountedComponents = this.mountedComponents.filter(
+        component => componentAndChildren.indexOf(component) === -1
+      );
       (componentToRemove.element.parentNode as HTMLElement).removeChild(
         componentToRemove.element
       );
@@ -57,8 +62,9 @@ export class Mounter implements MounterInterface {
     nodes: NodeList,
     data: object
   ): ComponentInterface[] {
+    this.mountedComponents = this.mountedComponents.concat(mountedComponents);
     const sourceElement: Element = this.content.element();
-    this.addData = { ...this.addData, ...data };
+    this.appData = { ...this.appData, ...data };
     this.mountedElement = this._mountComponents(
       Array.from(nodes).reduce((element: HTMLElement, node: Node) => {
         if (this.isCustomElement(node)) {
@@ -76,11 +82,6 @@ export class Mounter implements MounterInterface {
       this.mountedElement,
       sourceElement
     );
-    this.mountedComponents = this.mountedComponents.concat(mountedComponents);
-    this.assignDependencies();
-    this.mountedComponents.forEach(component =>
-      component.element.dispatchEvent(this.componentsLoadedEvent)
-    );
     return this.mountedComponents;
   }
 
@@ -92,13 +93,48 @@ export class Mounter implements MounterInterface {
     return this.mountedElement;
   }
 
-  public _mountComponent(
+  public assignDependencies(components?: ComponentInterface[]): void {
+    (components || this.mountedComponents).forEach(component => {
+      const parents: ComponentInterface[] = this.getComponentParents(
+        component,
+        components || this.mountedComponents
+      );
+      const children: ComponentInterface[] = this.getComponentChildren(
+        component,
+        components || this.mountedComponents
+      );
+      const siblings: ComponentInterface[] = this.getComponentSiblings(
+        component,
+        components || this.mountedComponents
+      );
+      const globals: ComponentInterface[] = this.getComponentGlobals(
+        component,
+        components || this.mountedComponents,
+        parents,
+        children,
+        siblings
+      );
+      component.setDependencies({
+        parents: this.groupByComponentName(parents),
+        children: this.groupByComponentName(children),
+        siblings: this.groupByComponentName(siblings),
+        globals: this.groupByComponentName(globals)
+      });
+    });
+  }
+
+  private _mountComponent(
     component: ComponentDefinition,
     properties: object,
     events?: Attr[],
     internal?: boolean
   ): HTMLElement {
-    const model = { ...this.addData, ...properties };
+    component.template.getProperties().forEach(property => {
+      if (!(property in properties)) {
+        properties = { ...properties, [property]: null };
+      }
+    });
+    const model = { ...this.appData, ...properties };
     const tagName: string =
       this.configuration.tagPrefix +
       '-' +
@@ -137,13 +173,22 @@ export class Mounter implements MounterInterface {
   }
 
   private isCustomElement(node: Node): boolean {
-    return (
-      node.nodeType === Node.ELEMENT_NODE &&
-      new RegExp(
-        '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
-        'g'
-      ).test((node as Element).tagName.toLowerCase())
-    );
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName: string = (node as Element).tagName.toLowerCase();
+      const componentName: string = this.dashToCamelCase(
+        tagName.replace(this.configuration.tagPrefix.toLowerCase() + '-', '')
+      );
+      const componentNames: string[] = this.components.map(component =>
+        this.lcfirst(this.getComponentName(component, true))
+      );
+      return (
+        new RegExp(
+          '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
+          'gi'
+        ).test(tagName) && componentNames.indexOf(componentName) !== -1
+      );
+    }
+    return false;
   }
 
   private markElementAsComponent(element: Element): Element {
@@ -164,9 +209,6 @@ export class Mounter implements MounterInterface {
       const componentIndex = this.components
         .map(component => this.getComponentName(component).toLowerCase())
         .indexOf(componentName.toLowerCase());
-      if (componentIndex === -1) {
-        throw new Error(`Component for '${elementTag}' tag is not defined`);
-      }
       const mountedElement: HTMLElement = this._mountComponent(
         this.components[componentIndex],
         this.unwrapDataset(element.dataset),
@@ -261,15 +303,14 @@ export class Mounter implements MounterInterface {
 
   private unwrapDataset(dataset: DOMStringMap): object {
     return Object.entries(dataset)
-      .filter(([_key, value]) => !!value)
-      .map(([_key, value]) => [_key, this.convertDataType(value as string)])
-      .reduce((obj: object, [k, v]) => ({ ...obj, [k]: v }), {});
+      .map(([key, value]) => [key, this.convertDataType(value as string)])
+      .reduce((obj: object, [key, value]) => ({ ...obj, [key]: value }), {});
   }
 
   private convertDataType(data: string): any {
     const hasBracesRegEx: RegExp = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/;
     if (data.length === 0) {
-      return undefined;
+      return '';
     }
     if (data === 'true') {
       return true;
@@ -323,8 +364,10 @@ export class Mounter implements MounterInterface {
     element
       .querySelectorAll('*')
       .forEach(child =>
-        this.getEvents(child.attributes).forEach(event =>
-          this.bindEvent(event, instance, child)
+        this.getEvents(child.attributes).forEach(
+          event =>
+            !this.isCustomElement(child) &&
+            this.bindEvent(event, instance, child)
         )
       );
     this.getEvents(element.attributes).forEach(event =>
@@ -338,7 +381,6 @@ export class Mounter implements MounterInterface {
     instance: ComponentInterface,
     element: Element
   ): void {
-    const actions = instance.actions;
     const eventType: string = event.name.substr(1);
     const eventName: string = event.value;
     const argumentsIndex: number = eventName.indexOf('(');
@@ -350,7 +392,16 @@ export class Mounter implements MounterInterface {
         ? this.convertDataType(eventName.slice(argumentsIndex + 1, -1))
         : undefined;
     if (actionNameParts.length > 1) {
+      const componentName: string = actionNameParts[0];
       const method: string = actionNameParts[1];
+      const actions =
+        componentName === this.getComponentName(instance, true)
+          ? instance.actions
+          : this.mountedComponents[
+              this.mountedComponents
+                .map(component => this.getComponentName(component, true))
+                .lastIndexOf(componentName)
+            ].actions;
       if (method in actions) {
         element.removeEventListener(eventType, actions[method]);
         element.addEventListener(
@@ -363,36 +414,6 @@ export class Mounter implements MounterInterface {
         "Attempting to call '" + actionName + "' of an undefined component"
       );
     }
-  }
-
-  private assignDependencies(): void {
-    this.mountedComponents.forEach(component => {
-      const parents: ComponentInterface[] = this.getComponentParents(
-        component,
-        this.mountedComponents
-      );
-      const children: ComponentInterface[] = this.getComponentChildren(
-        component,
-        this.mountedComponents
-      );
-      const siblings: ComponentInterface[] = this.getComponentSiblings(
-        component,
-        this.mountedComponents
-      );
-      const globals: ComponentInterface[] = this.getComponentGlobals(
-        component,
-        this.mountedComponents,
-        parents,
-        children,
-        siblings
-      );
-      component.setDependencies({
-        parents: this.groupByComponentName(parents),
-        children: this.groupByComponentName(children),
-        siblings: this.groupByComponentName(siblings),
-        globals: this.groupByComponentName(globals)
-      });
-    });
   }
 
   private groupByComponentName(components: ComponentInterface[]): Actionable {

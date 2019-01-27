@@ -6,10 +6,12 @@ import { AppRoot } from './app-root';
 export class RouterOutlet implements RouterOutletInterface {
   private appRoot: AppRoot;
   private routerOutletCache: { [key: string]: any };
+  private componentsLoadedEvent: CustomEvent;
 
   constructor(appRoot: AppRoot) {
     this.appRoot = appRoot;
     this.routerOutletCache = {};
+    this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
   }
 
   public element(): Element {
@@ -23,22 +25,41 @@ export class RouterOutlet implements RouterOutletInterface {
       ] = this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
     } else {
       const appData: object = this.appRoot.getAppData();
-      const components: ComponentInterface[] = this.appRoot.getMountedComponents();
+      const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
       if (!!route.resolver) {
         route.resolver.resolve().then(data => {
+          route.module.template.getProperties().forEach((property: string) => {
+            if (!(property in data)) {
+              data = { ...data, [property]: null };
+            }
+          });
           this.routerOutletCache[pathname] = route.module.render(
             {
               ...appData,
               ...data
             },
-            components
+            appRootComponents
+          );
+          const allComponents: ComponentInterface[] = appRootComponents.concat(
+            route.module.getMountedComponents()
+          );
+          route.module.assignDependencies(allComponents);
+          allComponents.forEach(component =>
+            component.element.dispatchEvent(this.componentsLoadedEvent)
           );
           this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
         });
       } else {
         this.routerOutletCache[pathname] = route.module.render(
           appData,
-          components
+          appRootComponents
+        );
+        const allComponents: ComponentInterface[] = appRootComponents.concat(
+          route.module.getMountedComponents()
+        );
+        route.module.assignDependencies(allComponents);
+        allComponents.forEach(component =>
+          component.element.dispatchEvent(this.componentsLoadedEvent)
         );
         this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
       }
