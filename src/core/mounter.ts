@@ -43,8 +43,13 @@ export class Mounter implements MounterInterface {
       component => component.uuid === elementID
     );
     if (componentToRemove) {
-      const index: number = this.mountedComponents.indexOf(componentToRemove);
-      this.mountedComponents.splice(index, 1);
+      const componentAndChildren: ComponentInterface[] = [
+        componentToRemove,
+        ...this.getComponentChildren(componentToRemove, this.mountedComponents)
+      ];
+      this.mountedComponents = this.mountedComponents.filter(
+        component => componentAndChildren.indexOf(component) === -1
+      );
       (componentToRemove.element.parentNode as HTMLElement).removeChild(
         componentToRemove.element
       );
