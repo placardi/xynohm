@@ -62,6 +62,7 @@ export class Mounter implements MounterInterface {
     nodes: NodeList,
     data: object
   ): ComponentInterface[] {
+    this.mountedComponents = this.mountedComponents.concat(mountedComponents);
     const sourceElement: Element = this.content.element();
     this.appData = { ...this.appData, ...data };
     this.mountedElement = this._mountComponents(
@@ -81,7 +82,6 @@ export class Mounter implements MounterInterface {
       this.mountedElement,
       sourceElement
     );
-    this.mountedComponents = this.mountedComponents.concat(mountedComponents);
     return this.mountedComponents;
   }
 
@@ -364,8 +364,10 @@ export class Mounter implements MounterInterface {
     element
       .querySelectorAll('*')
       .forEach(child =>
-        this.getEvents(child.attributes).forEach(event =>
-          this.bindEvent(event, instance, child)
+        this.getEvents(child.attributes).forEach(
+          event =>
+            !this.isCustomElement(child) &&
+            this.bindEvent(event, instance, child)
         )
       );
     this.getEvents(element.attributes).forEach(event =>
@@ -379,7 +381,6 @@ export class Mounter implements MounterInterface {
     instance: ComponentInterface,
     element: Element
   ): void {
-    const actions = instance.actions;
     const eventType: string = event.name.substr(1);
     const eventName: string = event.value;
     const argumentsIndex: number = eventName.indexOf('(');
@@ -391,7 +392,16 @@ export class Mounter implements MounterInterface {
         ? this.convertDataType(eventName.slice(argumentsIndex + 1, -1))
         : undefined;
     if (actionNameParts.length > 1) {
+      const componentName: string = actionNameParts[0];
       const method: string = actionNameParts[1];
+      const actions =
+        componentName === this.getComponentName(instance, true)
+          ? instance.actions
+          : this.mountedComponents[
+              this.mountedComponents
+                .map(component => this.getComponentName(component, true))
+                .lastIndexOf(componentName)
+            ].actions;
       if (method in actions) {
         element.removeEventListener(eventType, actions[method]);
         element.addEventListener(
