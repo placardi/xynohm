@@ -3,5 +3,5 @@ const baseConfig = require('./base.config.js');
 
 module.exports = merge(baseConfig, {
   mode: 'production',
-  devtool: 'none'
+  devtool: 'source-map'
 });
