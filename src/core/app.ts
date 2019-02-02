@@ -45,8 +45,10 @@ export class App implements AppInterface {
     return this;
   }
 
-  public ready(executable: Executable): void {
-    this.onReady = executable;
+  public ready(executable?: Executable): void {
+    if (!!executable) {
+      this.onReady = executable;
+    }
   }
 
   private onDOMLoaded(): void {
