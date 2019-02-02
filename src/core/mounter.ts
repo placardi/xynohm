@@ -308,7 +308,7 @@ export class Mounter implements MounterInterface {
   }
 
   private convertDataType(data: string): any {
-    const hasBracesRegEx: RegExp = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/;
+    const hasBracesRegEx: RegExp = /^(^\s*\{\s*[A-Z0-9._]+\s*:\s*[A-Z0-9._]+\s*(,\s*[A-Z0-9._]+\s*:\s*[A-Z0-9._]+\s*)*\}\s*$|\[[\w\W]*\])$/;
     if (data.length === 0) {
       return '';
     }

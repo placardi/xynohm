@@ -120,10 +120,7 @@ export class TemplateParser implements TemplateParserInterface {
       .replace(/]/g, '')
       .replace(/\[/g, '.')
       .split('.')
-      .reduce(
-        (previous, current) => (previous && previous[current]) || undefined,
-        object
-      );
+      .reduce((previous, current) => previous && previous[current], object);
   }
 
   private processIfDirective(
@@ -184,7 +181,6 @@ export class TemplateParser implements TemplateParserInterface {
         );
         if (iterable) {
           model['__' + iterator + '__'] = [];
-
           const values: any[] | undefined =
             iterable instanceof Array
               ? iterable
@@ -195,8 +191,27 @@ export class TemplateParser implements TemplateParserInterface {
               : undefined;
           if (values) {
             values.forEach(value => {
-              model['__' + iterator + '__'].push(value);
-              processedNodes.push(document.importNode(node, true));
+              if (!(value instanceof Array) && value instanceof Object) {
+                value = Object.entries(value)
+                  .map(([k, v]) => [k, v])
+                  .reduce(
+                    (obj, [k, v]) => ({ ...obj, [iterator + '.' + k]: v }),
+                    {}
+                  );
+                const html: string = this.nodesToHTML([node]);
+                processedNodes.push(
+                  document.importNode(
+                    this.replaceMoustachesInTemplate(
+                      this.parseMoustaches(html, value),
+                      html
+                    )[0] as Element,
+                    true
+                  )
+                );
+              } else {
+                model['__' + iterator + '__'].push(value);
+                processedNodes.push(document.importNode(node, true));
+              }
             });
           }
           return;
