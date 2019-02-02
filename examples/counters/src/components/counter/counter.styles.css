@@ -1,9 +1,10 @@
 app-counter {
+  padding: 10px;
   border: 1px solid black;
 }
 
-app-counter {
-  padding: 10px;
+app-counter.highlighted {
+  border-color: red;
 }
 
 app-counter:nth-of-type(n + 2) {

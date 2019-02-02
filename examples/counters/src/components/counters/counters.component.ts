@@ -11,7 +11,36 @@ export class CountersComponent extends Component {
       add: (_data?: any, external?: boolean) =>
         this.present({ add: true }, external),
       remove: (_data?: any, external?: boolean) =>
-        this.present({ remove: true }, external)
+        this.present({ remove: true }, external),
+      addHighlight: (_data?: any, _external?: boolean, event?: Event) => {
+        const target: HTMLElement | undefined =
+          event && (event.target as HTMLElement);
+        if (target) {
+          const index: number = Array.from(
+            (target.parentNode as HTMLElement).children
+          ).indexOf(target);
+          this.components.children.counter[index].addHighlight(null, true);
+        }
+      },
+      removeHighlight: (_data?: any, _external?: boolean, event?: Event) => {
+        const target: HTMLElement | undefined =
+          event && (event.target as HTMLElement);
+        if (target) {
+          const index: number = Array.from(
+            (target.parentNode as HTMLElement).children
+          ).indexOf(target);
+          this.components.children.counter[index].removeHighlight(null, true);
+        }
+      },
+      observe: (_data?: any, _external?: boolean, event?: Event) => {
+        if (event) {
+          alert(
+            `Component with UUID ${
+              (event as CustomEvent).detail.uuid
+            } has a value of ${(event as CustomEvent).detail.value}`
+          );
+        }
+      }
     };
   }
 
