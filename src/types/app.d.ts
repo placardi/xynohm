@@ -3,7 +3,7 @@ import { Executable } from './common';
 interface AppInterface extends Runnable, Completable {}
 
 interface Completable {
-  ready(executable: Executable): void;
+  ready(executable?: Executable): void;
 }
 
 interface Runnable {
