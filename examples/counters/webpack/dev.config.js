@@ -17,7 +17,7 @@ const getDirectoriesRecursive = dir => [
 
 module.exports = merge(baseConfig, {
   mode: 'development',
-  devtool: 'cheap-module-source-map',
+  devtool: 'source-map',
   output: {
     filename: '[name].js'
   },
@@ -33,6 +33,11 @@ module.exports = merge(baseConfig, {
   },
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        use: ['source-map-loader'],
+        enforce: 'pre'
+      },
       {
         test: /\.css$/,
         use: [
