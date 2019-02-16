@@ -165,6 +165,9 @@ export class Mounter implements MounterInterface {
             if (mutation.type === 'childList') {
               this.assignDependencies();
               instance.element.dispatchEvent(this.componentsLoadedEvent);
+              if (instance.onInit) {
+                instance.onInit();
+              }
             }
           });
           observer.disconnect();

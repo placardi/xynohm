@@ -47,6 +47,9 @@ export class RouterOutlet implements RouterOutletInterface {
           allComponents.forEach(component =>
             component.element.dispatchEvent(this.componentsLoadedEvent)
           );
+          allComponents.forEach(
+            component => component.onInit && component.onInit()
+          );
           this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
         });
       } else {
@@ -60,6 +63,9 @@ export class RouterOutlet implements RouterOutletInterface {
         route.module.assignDependencies(allComponents);
         allComponents.forEach(component =>
           component.element.dispatchEvent(this.componentsLoadedEvent)
+        );
+        allComponents.forEach(
+          component => component.onInit && component.onInit()
         );
         this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
       }
