@@ -33,7 +33,7 @@ interface Dependencies {
   readonly globals: Actionable;
 }
 
-interface ComponentInterface extends Nameable, Unique {
+interface ComponentInterface extends Nameable, Unique, Partial<OnInit> {
   readonly actions: Actions;
   readonly element: HTMLElement;
   readonly components: Dependencies;
@@ -49,6 +49,10 @@ interface Unique {
   readonly uuid: string;
 }
 
+interface OnInit {
+  onInit(): void;
+}
+
 export {
   Actions,
   States,
@@ -57,5 +61,6 @@ export {
   Actionable,
   Dependencies,
   ComponentInterface,
-  ComponentDefinition
+  ComponentDefinition,
+  OnInit
 };

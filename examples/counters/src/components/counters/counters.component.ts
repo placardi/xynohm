@@ -75,12 +75,20 @@ export class CountersComponent extends Component {
     return {
       add: (_model: Model, element: HTMLElement) => {
         element.appendChild(
-          this.mounter.mountComponent(CounterComponent, {
-            id: this.components.children.counter
-              ? this.components.children.counter.length
-              : 0,
-            value: 0
-          })
+          this.mounter.mountComponent(
+            CounterComponent,
+            {
+              id: this.components.children.counter
+                ? this.components.children.counter.length
+                : 0,
+              value: 0
+            },
+            {
+              _mouseenter: 'Counters.addHighlight()',
+              _mouseleave: 'Counters.removeHighlight()',
+              '_custom-event': 'Counters.observe()'
+            }
+          )
         );
       },
       remove: (_model: Model, element: HTMLElement) => {

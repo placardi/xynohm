@@ -25,3 +25,7 @@ app-counter > .counter-buttons > button {
   padding: 5px;
   cursor: pointer;
 }
+
+app-counter > .counter-buttons > button:nth-of-type(n + 2) {
+  margin-left: 5px;
+}

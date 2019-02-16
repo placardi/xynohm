@@ -1,9 +1,18 @@
-import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
+import {
+  Actions,
+  Component,
+  Model,
+  OnInit,
+  States,
+  Views
+} from '@placardi/xynohm';
 
-export class CounterComponent extends Component {
+export class CounterComponent extends Component implements OnInit {
   constructor(model: Model, uuid: string, element: HTMLElement) {
     super(model, uuid, element);
   }
+
+  public onInit(): void {}
 
   public get actions(): Actions {
     return {

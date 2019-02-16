@@ -31,9 +31,10 @@ export class Mounter implements MounterInterface {
 
   public mountComponent(
     component: ComponentDefinition,
-    data: object
+    data?: object,
+    attributes?: object
   ): HTMLElement {
-    return this._mountComponent(component, data);
+    return this._mountComponent(component, data || {}, attributes || {});
   }
 
   public unmountComponent(elementID: string): void {
@@ -126,6 +127,7 @@ export class Mounter implements MounterInterface {
   private _mountComponent(
     component: ComponentDefinition,
     properties: object,
+    attributes: object,
     events?: Attr[],
     internal?: boolean
   ): HTMLElement {
@@ -143,6 +145,11 @@ export class Mounter implements MounterInterface {
       tagName,
       component.template.process(model)
     );
+    if (!internal) {
+      Object.entries(attributes).forEach(([key, value]) => {
+        element.setAttribute(key, value);
+      });
+    }
     const uuid: string = this.generateUUID();
     this.markElementAsProcessed(element, uuid, events);
     const instance: ComponentInterface = new component(model, uuid, element);
@@ -158,6 +165,9 @@ export class Mounter implements MounterInterface {
             if (mutation.type === 'childList') {
               this.assignDependencies();
               instance.element.dispatchEvent(this.componentsLoadedEvent);
+              if (instance.onInit) {
+                instance.onInit();
+              }
             }
           });
           observer.disconnect();
@@ -212,6 +222,7 @@ export class Mounter implements MounterInterface {
       const mountedElement: HTMLElement = this._mountComponent(
         this.components[componentIndex],
         this.unwrapDataset(element.dataset),
+        {},
         this.getEvents(element.attributes),
         true
       );

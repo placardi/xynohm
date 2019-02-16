@@ -1,7 +1,11 @@
 import { ComponentDefinition, ComponentInterface } from './component';
 
 interface ComponentMounter {
-  mountComponent(component: ComponentDefinition, data: object): HTMLElement;
+  mountComponent(
+    component: ComponentDefinition,
+    data?: object,
+    attributes?: object
+  ): HTMLElement;
   unmountComponent(elementID: string): void;
 }
 
