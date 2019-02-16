@@ -124,7 +124,7 @@ export class TemplateParser implements TemplateParserInterface {
   }
 
   private processIfDirective(
-    content: DocumentFragment,
+    content: DocumentFragment | Node,
     model: object
   ): Element[] {
     return Array.from(content.childNodes as NodeListOf<Element>)
@@ -161,60 +161,77 @@ export class TemplateParser implements TemplateParserInterface {
   ): Element[] {
     const processedNodes: Element[] = [];
     nodes.forEach(node => {
-      if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('*for')) {
-        const attributeValue: string = (node.getAttribute(
-          '*for'
-        ) as string).trim();
-        const moustaches: string[] = this.parseMoustaches(
-          attributeValue,
-          model
-        );
-        const {
-          iterator,
-          iterable
-        }: {
-          iterator: string;
-          iterable: object;
-        } = this.getForDirectiveExpression(
-          this.repalceMoustachesInString(moustaches, attributeValue),
-          model
-        );
-        if (iterable) {
-          model['__' + iterator + '__'] = [];
-          const values: any[] | undefined =
-            iterable instanceof Array
-              ? iterable
-              : iterable instanceof Object
-              ? Object.values(iterable)
-              : Number.isInteger(iterable)
-              ? [...Array(iterable).keys()]
-              : undefined;
-          if (values) {
-            values.forEach(value => {
-              if (!(value instanceof Array) && value instanceof Object) {
-                value = Object.entries(value)
-                  .map(([k, v]) => [k, v])
-                  .reduce(
-                    (obj, [k, v]) => ({ ...obj, [iterator + '.' + k]: v }),
-                    {}
-                  );
-                const html: string = this.nodesToHTML([node]);
-                processedNodes.push(
-                  document.importNode(
-                    this.replaceMoustachesInTemplate(
-                      this.parseMoustaches(html, value),
-                      html
-                    )[0] as Element,
-                    true
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.hasAttribute('*for') && !node.hasAttribute('parsed')) {
+          const attributeValue: string = (node.getAttribute(
+            '*for'
+          ) as string).trim();
+          const moustaches: string[] = this.parseMoustaches(
+            attributeValue,
+            model
+          );
+          const {
+            iterator,
+            iterable
+          }: {
+            iterator: string;
+            iterable: object;
+          } = this.getForDirectiveExpression(
+            this.repalceMoustachesInString(moustaches, attributeValue),
+            model
+          );
+          if (iterable) {
+            const values: any[] | undefined =
+              iterable instanceof Array
+                ? iterable
+                : iterable instanceof Object
+                ? Object.values(iterable)
+                : Number.isInteger(iterable)
+                ? [...Array(iterable).keys()]
+                : undefined;
+            if (values) {
+              values.forEach(value => {
+                node = this.replaceChildrenInNode(
+                  node,
+                  this.processForDirective(
+                    this.processIfDirective(node, model),
+                    model
                   )
                 );
-              } else {
-                model['__' + iterator + '__'].push(value);
-                processedNodes.push(document.importNode(node, true));
-              }
-            });
+                const html: string = this.nodesToHTML([node]);
+                value =
+                  !(value instanceof Array) && value instanceof Object
+                    ? Object.entries(value)
+                        .map(([k, v]) => [k, v])
+                        .reduce(
+                          (obj, [k, v]) => ({
+                            ...obj,
+                            [iterator + '.' + k]: v
+                          }),
+                          {}
+                        )
+                    : { [iterator]: value };
+                const element: Element = document.importNode(
+                  this.replaceMoustachesInTemplate(
+                    this.parseMoustaches(html, value),
+                    html
+                  )[0] as Element,
+                  true
+                );
+                element.setAttribute('parsed', '');
+                processedNodes.push(element);
+              });
+              return;
+            }
           }
-          return;
+        } else {
+          this.replaceChildrenInNode(
+            node,
+            this.processForDirective(
+              this.processIfDirective(node, model),
+              model
+            )
+          );
         }
       }
       if (node.nodeType === Node.TEXT_NODE) {
@@ -248,5 +265,15 @@ export class TemplateParser implements TemplateParserInterface {
     return iterable === +iterable + ''
       ? +iterable
       : this.evaluateObjectFromPattern(model, iterable);
+  }
+
+  private replaceChildrenInNode(node: Element, children: Element[]): Element {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+    children.forEach(child => {
+      node.appendChild(child);
+    });
+    return node;
   }
 }
