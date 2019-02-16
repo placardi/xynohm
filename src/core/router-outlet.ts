@@ -22,7 +22,10 @@ export class RouterOutlet implements RouterOutletInterface {
     if (pathname in this.routerOutletCache) {
       this.routerOutletCache[
         location.pathname
-      ] = this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
+      ] = this.appRoot.replaceRouterOutlet(
+        this.routerOutletCache[pathname],
+        route.module.name
+      );
     } else {
       const appData: object = this.appRoot.getAppData();
       const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
@@ -50,7 +53,10 @@ export class RouterOutlet implements RouterOutletInterface {
           allComponents.forEach(
             component => component.onInit && component.onInit()
           );
-          this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
+          this.appRoot.replaceRouterOutlet(
+            this.routerOutletCache[pathname],
+            route.module.name
+          );
         });
       } else {
         this.routerOutletCache[pathname] = route.module.render(
@@ -67,7 +73,10 @@ export class RouterOutlet implements RouterOutletInterface {
         allComponents.forEach(
           component => component.onInit && component.onInit()
         );
-        this.appRoot.replaceRouterOutlet(this.routerOutletCache[pathname]);
+        this.appRoot.replaceRouterOutlet(
+          this.routerOutletCache[pathname],
+          route.module.name
+        );
       }
     }
   }

@@ -9,7 +9,7 @@ interface AppRootInterface extends WithElement {
   getAppData(): object;
   getRouterOutlet(): Element;
   getMountedComponents(): ComponentInterface[];
-  replaceRouterOutlet(routerOutlet: Element): Element;
+  replaceRouterOutlet(routerOutlet: Element, moduleName: string): Element;
 }
 
 export { AppRootInterface };
