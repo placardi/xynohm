@@ -155,10 +155,7 @@ export class TemplateParser implements TemplateParserInterface {
       .filter(Boolean) as Element[];
   }
 
-  private processForDirective(
-    nodes: Element[],
-    model: { [key: string]: any }
-  ): Element[] {
+  private processForDirective(nodes: Element[], model: object): Element[] {
     const processedNodes: Element[] = [];
     nodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
@@ -191,7 +188,8 @@ export class TemplateParser implements TemplateParserInterface {
                 : undefined;
             if (values) {
               values.forEach(value => {
-                node = this.replaceChildrenInNode(
+                model = { ...model, [iterator]: value };
+                this.replaceChildrenInNode(
                   node,
                   this.processForDirective(
                     this.processIfDirective(node, model),
@@ -223,6 +221,8 @@ export class TemplateParser implements TemplateParserInterface {
               });
               return;
             }
+          } else {
+            return;
           }
         } else {
           this.replaceChildrenInNode(
@@ -268,6 +268,9 @@ export class TemplateParser implements TemplateParserInterface {
   }
 
   private replaceChildrenInNode(node: Element, children: Element[]): Element {
+    if (node.parentNode) {
+      (node.parentNode as Element).replaceChild(node.cloneNode(true), node);
+    }
     while (node.firstChild) {
       node.removeChild(node.firstChild);
     }
