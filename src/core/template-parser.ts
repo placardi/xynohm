@@ -64,13 +64,6 @@ export class TemplateParser implements TemplateParserInterface {
   }
 
   private evaluateExpressionPart(part: string, model: any): string {
-    if ('__' + part + '__' in model) {
-      const value: string = model['__' + part + '__'].shift();
-      if (model['__' + part + '__'].length === 0) {
-        delete model['__' + part + '__'];
-      }
-      return value;
-    }
     if (part in model) {
       const value: any = model[part];
       return value instanceof Object
