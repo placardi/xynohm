@@ -182,14 +182,15 @@ export class TemplateParser implements TemplateParserInterface {
             if (values) {
               values.forEach(value => {
                 model = { ...model, [iterator]: value };
+                const clone: Element = node.cloneNode(true) as Element;
+                clone.setAttribute('parsed', '');
                 this.replaceChildrenInNode(
-                  node,
+                  clone,
                   this.processForDirective(
-                    this.processIfDirective(node, model),
+                    this.processIfDirective(clone, model),
                     model
                   )
                 );
-                const html: string = this.nodesToHTML([node]);
                 value =
                   !(value instanceof Array) && value instanceof Object
                     ? Object.entries(value)
@@ -202,15 +203,16 @@ export class TemplateParser implements TemplateParserInterface {
                           {}
                         )
                     : { [iterator]: value };
-                const element: Element = document.importNode(
-                  this.replaceMoustachesInTemplate(
-                    this.parseMoustaches(html, value),
-                    html
-                  )[0] as Element,
-                  true
+                const html: string = this.nodesToHTML([clone]);
+                processedNodes.push(
+                  document.importNode(
+                    this.replaceMoustachesInTemplate(
+                      this.parseMoustaches(html, value),
+                      html
+                    )[0] as Element,
+                    true
+                  )
                 );
-                element.setAttribute('parsed', '');
-                processedNodes.push(element);
               });
               return;
             }
