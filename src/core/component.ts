@@ -15,6 +15,7 @@ export class Component implements ComponentInterface {
   private _element: HTMLElement;
   private _mounter: ComponentMounter;
   private _model: Model = { transient: {} };
+  private isOnInitExecuted: boolean = false;
 
   constructor(model: Model, uuid: string, element: HTMLElement) {
     this._model = { ...this._model, ...model };
@@ -62,6 +63,14 @@ export class Component implements ComponentInterface {
 
   public setMounter(mounter: ComponentMounter): void {
     this._mounter = mounter;
+  }
+
+  public getIsOnInitExecuted(): boolean {
+    return this.isOnInitExecuted;
+  }
+
+  public setIsOnInitExecuted(isOnInitExecuted: boolean): void {
+    this.isOnInitExecuted = isOnInitExecuted;
   }
 
   protected get model(): Model {

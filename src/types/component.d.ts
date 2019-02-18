@@ -39,6 +39,8 @@ interface ComponentInterface extends Nameable, Unique, Partial<OnInit> {
   readonly components: Dependencies;
   setDependencies(dependencies: Dependencies): void;
   setMounter(mounter: ComponentMounter): void;
+  getIsOnInitExecuted(): boolean;
+  setIsOnInitExecuted(isOnInitExecuted: boolean): void;
 }
 
 interface ComponentDefinition extends Templateable {
