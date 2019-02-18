@@ -181,14 +181,14 @@ export class TemplateParser implements TemplateParserInterface {
                 : undefined;
             if (values) {
               values.forEach(value => {
-                model = { ...model, [iterator]: value };
+                let currentModel: object = { ...model, [iterator]: value };
                 const clone: Element = node.cloneNode(true) as Element;
                 clone.setAttribute('parsed', '');
                 this.replaceChildrenInNode(
                   clone,
                   this.processForDirective(
-                    this.processIfDirective(clone, model),
-                    model
+                    this.processIfDirective(clone, currentModel),
+                    currentModel
                   )
                 );
                 value =
@@ -203,11 +203,12 @@ export class TemplateParser implements TemplateParserInterface {
                           {}
                         )
                     : { [iterator]: value };
+                currentModel = { ...currentModel, ...value };
                 const html: string = this.nodesToHTML([clone]);
                 processedNodes.push(
                   document.importNode(
                     this.replaceMoustachesInTemplate(
-                      this.parseMoustaches(html, value),
+                      this.parseMoustaches(html, currentModel),
                       html
                     )[0] as Element,
                     true
