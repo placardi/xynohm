@@ -137,12 +137,10 @@ export class Mounter implements MounterInterface {
       }
     });
     const model = { ...this.appData, ...properties };
-    const tagName: string =
-      this.configuration.tagPrefix +
-      '-' +
-      this.camelCaseToDash(this.getComponentName(component, true));
     const element: HTMLElement = this.createElement(
-      tagName,
+      this.configuration.tagPrefix +
+        '-' +
+        this.camelCaseToDash(this.getComponentName(component, true)),
       component.template.process(model)
     );
     if (!internal) {
