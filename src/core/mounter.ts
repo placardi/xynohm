@@ -192,7 +192,7 @@ export class Mounter implements MounterInterface {
       );
       return (
         new RegExp(
-          '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
+          '^/{0,1}' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+$',
           'gi'
         ).test(tagName) && componentNames.indexOf(componentName) !== -1
       );
