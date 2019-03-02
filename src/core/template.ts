@@ -1,5 +1,10 @@
+import { ComponentDefinition } from '../types/component';
+import { Configuration } from '../types/configuration';
 import { TemplateInterface } from '../types/template';
-import { TemplateParserInterface } from '../types/template-parser';
+import {
+  ParsedTemplate,
+  TemplateParserInterface
+} from '../types/template-parser';
 import { TemplateParser } from './template-parser';
 
 export class Template implements TemplateInterface {
@@ -11,8 +16,17 @@ export class Template implements TemplateInterface {
     this.parser = new TemplateParser();
   }
 
-  public process(model: object): NodeList {
-    return this.parser.parse(this.template.content, model);
+  public process(
+    model: object,
+    configuration: Configuration,
+    components: ComponentDefinition[]
+  ): ParsedTemplate {
+    return this.parser.parse(
+      this.template.content,
+      model,
+      configuration,
+      components
+    );
   }
 
   public getProperties(): string[] {

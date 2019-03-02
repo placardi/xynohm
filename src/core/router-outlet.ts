@@ -18,6 +18,10 @@ export class RouterOutlet implements RouterOutletInterface {
     return this.appRoot.getRouterOutlet();
   }
 
+  public getAppRoot(): AppRoot {
+    return this.appRoot;
+  }
+
   public replaceContent(pathname: string, route: RouteInterface): void {
     if (pathname in this.routerOutletCache) {
       this.routerOutletCache[

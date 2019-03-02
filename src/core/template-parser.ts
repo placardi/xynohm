@@ -1,18 +1,42 @@
-import { TemplateParserInterface } from '../types/template-parser';
+import { ComponentDefinition } from '../types/component';
+import { Configuration } from '../types/configuration';
+import {
+  ParsedTemplate,
+  TemplateParserInterface
+} from '../types/template-parser';
+import {
+  evaluateObjectFromPattern,
+  generateUUID,
+  isCustomElement,
+  isString
+} from './utils';
 
 export class TemplateParser implements TemplateParserInterface {
+  private modelRefs: { [key: string]: object } = {};
+  private configuration: Configuration;
+  private components: ComponentDefinition[];
   private regEx: { [name: string]: RegExp } = {
     moustaches: /{{\s*([\w\.\^ *\/\+\-\(\)\=\?\:\'\"\!\[\]&;]+)?\s*}}/g,
     maths: /(\w+((\.\w+)|(\[\d\]))+)|(\'\w+\')|(\"\w+\")|(\d+)|"(\w+)"|(\w+)|(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\))|\:|\?|\'|\"/g,
     logicalOperators: /(=\s*=\s*=)|(=\s*=)|(!\s*=\s*=)|(!\s*=)|(<\s*=)|(>\s*=)/g
   };
 
-  public parse(content: DocumentFragment, model: object): NodeList {
+  public parse(
+    content: DocumentFragment,
+    model: object,
+    configuration: Configuration,
+    components: ComponentDefinition[]
+  ): ParsedTemplate {
+    this.configuration = configuration;
+    this.components = components;
     const html: string = this.nodesToHTML(
       this.processForDirective(this.processIfDirective(content, model), model)
     );
     const moustaches: string[] = this.parseMoustaches(html, model);
-    return this.replaceMoustachesInTemplate(moustaches, html);
+    return {
+      modelRefs: this.modelRefs,
+      nodes: this.replaceMoustachesInTemplate(moustaches, html)
+    };
   }
 
   private getMoustaches(html: string): string[] {
@@ -50,17 +74,13 @@ export class TemplateParser implements TemplateParserInterface {
           return JSON.parse(expression) && expression;
         } catch (e) {
           try {
-            return this.isString(expression) ? expression : eval(expression);
+            return isString(expression) ? expression : eval(expression);
           } catch (e) {
             return null;
           }
         }
       })
       .map(moustache => (moustache === null ? 'null' : moustache.toString()));
-  }
-
-  private isString(s: any): boolean {
-    return s instanceof String || typeof s === 'string';
   }
 
   private evaluateExpressionPart(part: string, model: any): string {
@@ -76,7 +96,7 @@ export class TemplateParser implements TemplateParserInterface {
       part.indexOf('.') !== -1 ||
       (part.indexOf('[') !== -1 && part.indexOf(']') !== -1)
     ) {
-      const value: any = this.evaluateObjectFromPattern(model, part);
+      const value: any = evaluateObjectFromPattern(model, part);
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
         : !!value
@@ -103,17 +123,6 @@ export class TemplateParser implements TemplateParserInterface {
     return str.replace(this.regEx.moustaches, () => {
       return moustaches[index++];
     });
-  }
-
-  private evaluateObjectFromPattern(
-    object: { [key: string]: any },
-    pattern: string
-  ): any {
-    return pattern
-      .replace(/]/g, '')
-      .replace(/\[/g, '.')
-      .split('.')
-      .reduce((previous, current) => previous && previous[current], object);
   }
 
   private processIfDirective(
@@ -204,6 +213,20 @@ export class TemplateParser implements TemplateParserInterface {
                         )
                     : { [iterator]: value };
                 currentModel = { ...currentModel, ...value };
+                if (
+                  isCustomElement(
+                    clone,
+                    this.configuration.tagPrefix,
+                    this.components
+                  )
+                ) {
+                  const modelUUID = generateUUID();
+                  clone.setAttribute('model-ref', modelUUID);
+                  this.modelRefs = {
+                    ...this.modelRefs,
+                    [modelUUID]: currentModel
+                  };
+                }
                 const html: string = this.nodesToHTML([clone]);
                 processedNodes.push(
                   document.importNode(
@@ -260,7 +283,7 @@ export class TemplateParser implements TemplateParserInterface {
   private evaluateIterable(model: object, iterable: string): any {
     return iterable === +iterable + ''
       ? +iterable
-      : this.evaluateObjectFromPattern(model, iterable);
+      : evaluateObjectFromPattern(model, iterable);
   }
 
   private replaceChildrenInNode(node: Element, children: Element[]): Element {
