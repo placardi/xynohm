@@ -3,6 +3,8 @@ import {
   ComponentInterface,
   Dependencies,
   Model,
+  PresentInput,
+  RenderInput,
   States,
   Views
 } from '../types/component';
@@ -22,7 +24,7 @@ export class Component implements ComponentInterface {
     this._uuid = uuid;
     this._element = element;
     this._element.addEventListener('__components_loaded__', () =>
-      this.states.render(this._model)
+      this.states.render({ model: this._model })
     );
   }
 
@@ -77,15 +79,15 @@ export class Component implements ComponentInterface {
     return this._model;
   }
 
-  protected present(_data: any, _external?: boolean): void {}
+  protected present({  }: PresentInput): void {}
 
   protected representation(_model: Model): void {}
 
   protected get states(): States {
     return {
-      render: (model: Model, external?: boolean): void => {
+      render: ({ model, external }: RenderInput): void => {
         this.representation(model);
-        this.next(model, external);
+        this.next({ model, external });
         model.transient = {};
       }
     };
@@ -95,5 +97,5 @@ export class Component implements ComponentInterface {
     return {};
   }
 
-  protected next(_model: Model, _external?: boolean): void {}
+  protected next({}): void {}
 }

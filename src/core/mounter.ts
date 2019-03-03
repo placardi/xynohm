@@ -358,10 +358,6 @@ export class Mounter implements MounterInterface {
     const actionName: string =
       argumentsIndex !== -1 ? eventName.substr(0, argumentsIndex) : eventName;
     const actionNameParts: string[] = actionName.split('.');
-    const actionArguments: number =
-      argumentsIndex !== -1
-        ? convertDataType(eventName.slice(argumentsIndex + 1, -1))
-        : undefined;
     if (actionNameParts.length > 1) {
       const componentName: string = actionNameParts[0];
       const method: string = actionNameParts[1];
@@ -374,10 +370,15 @@ export class Mounter implements MounterInterface {
                 .lastIndexOf(componentName)
             ].actions;
       if (method in actions) {
-        element.removeEventListener(eventType, actions[method]);
-        element.addEventListener(
-          eventType,
-          actions[method].bind(instance, actionArguments, undefined)
+        element.removeEventListener(eventType, () => actions[method]);
+        element.addEventListener(eventType, (e: Event) =>
+          actions[method].call(instance, {
+            data:
+              argumentsIndex !== -1
+                ? convertDataType(eventName.slice(argumentsIndex + 1, -1))
+                : undefined,
+            event: e
+          })
         );
       }
     } else {

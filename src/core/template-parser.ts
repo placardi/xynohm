@@ -99,7 +99,7 @@ export class TemplateParser implements TemplateParserInterface {
       const value: any = evaluateObjectFromPattern(model, part);
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
-        : !!value
+        : value !== undefined && value !== null
         ? value
         : 'null';
     }
