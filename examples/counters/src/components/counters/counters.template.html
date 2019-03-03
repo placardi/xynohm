@@ -1,10 +1,10 @@
-<template component="CountersComponent">
+<template component="CountersComponent" data-counters data-buttons>
   <app-counter
     _mouseenter="Counters.addHighlight()"
     _mouseleave="Counters.removeHighlight()"
     _custom-event="Counters.observe()"
     *for="counter in counters"
-    data-id="{{ counter.id }}"
-    data-value="{{ counter.value }}"
+    data-counter="counter"
+    data-buttons="buttons"
   ></app-counter>
 </template>

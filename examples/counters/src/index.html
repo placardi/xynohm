@@ -8,7 +8,7 @@
   </head>
   <body>
     <app-loader>
-      ${ require('./components/loader/loader.template.html') }
+      ${require('./components/loader/loader.template.html')}
     </app-loader>
     <app-root>
       <app-header></app-header>
@@ -23,29 +23,17 @@
     </app-root>
 
     <!-- Module templates -->
-    <!-- prettier-ignore -->
-    ${ require('./modules/root/root.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./modules/counters/counters.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./modules/error/error.template.html') }
+    ${require('./modules/root/root.template.html')}
+    ${require('./modules/counters/counters.template.html')}
+    ${require('./modules/error/error.template.html')}
 
     <!-- Component templates -->
-    <!-- prettier-ignore -->
-    ${ require('./components/header/header.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./components/counters/counters.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./components/counter/counter.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./components/counter-value/counter-value.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./components/counter-colour/counter-colour.template.html') }
-    <!-- prettier-ignore -->
-    ${ require('./components/button/button.template.html') }
-    <!-- prettier-ignore -->
-    ${
-    require('./components/counters-control-panel/counters-control-panel.template.html')
-    }
+    ${require('./components/header/header.template.html')}
+    ${require('./components/counters/counters.template.html')}
+    ${require('./components/counter/counter.template.html')}
+    ${require('./components/counter-value/counter-value.template.html')}
+    ${require('./components/counter-colour/counter-colour.template.html')}
+    ${require('./components/button/button.template.html')}
+    ${require('./components/counters-control-panel/counters-control-panel.template.html')}
   </body>
 </html>

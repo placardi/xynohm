@@ -1,7 +1,7 @@
-<template component="CounterComponent" data-id data-value>
-  <p>Counter {{ id }}</p>
+<template component="CounterComponent" data-counter data-buttons>
+  <p>Counter {{ counter.id }}</p>
   <div class="counter-status">
-    <app-counter-value data-value="{{ value }}"></app-counter-value>
+    <app-counter-value data-value="{{ counter.value }}"></app-counter-value>
     <app-counter-colour></app-counter-colour>
   </div>
   <div class="counter-buttons">
@@ -11,7 +11,7 @@
       name="add-button"
       _click="Counter.add({ &quot;increment&quot;: 1 })"
     >
-      {{ button.add }}
+      {{ buttons.add }}
     </button>
     <button
       class="subtract-button"
@@ -19,7 +19,7 @@
       name="subtract-button"
       _click="Counter.subtract({ &quot;decrement&quot;: 1 })"
     >
-      {{ button.subtract }}
+      {{ buttons.subtract }}
     </button>
     <button
       class="reset-button"
@@ -27,7 +27,7 @@
       name="reset-button"
       _click="Counter.reset({ &quot;value&quot;: 0 })"
     >
-      {{ button.reset }}
+      {{ buttons.reset }}
     </button>
   </div>
   <app-button _click="Button.fetch()"></app-button>
