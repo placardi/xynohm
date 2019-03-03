@@ -1,4 +1,14 @@
-import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
+import {
+  ActionInput,
+  Actions,
+  Component,
+  Model,
+  PresentInput,
+  StateInput,
+  States,
+  ViewInput,
+  Views
+} from '@placardi/xynohm';
 
 export class CounterColourComponent extends Component {
   constructor(model: Model, uuid: string, element: HTMLElement) {
@@ -7,54 +17,54 @@ export class CounterColourComponent extends Component {
 
   public get actions(): Actions {
     return {
-      paintPositive: (_data?: any, external?: boolean) =>
-        this.present({ state: 'positive' }, external),
-      paintNegative: (_data?: any, external?: boolean) =>
-        this.present({ state: 'negative' }, external),
-      paintNeutral: (_data?: any, external?: boolean) =>
-        this.present({ state: 'neutral' }, external)
+      paintPositive: ({ external }: ActionInput) =>
+        this.present({ data: { state: 'positive' }, external }),
+      paintNegative: ({ external }: ActionInput) =>
+        this.present({ data: { state: 'negative' }, external }),
+      paintNeutral: ({ external }: ActionInput) =>
+        this.present({ data: { state: 'neutral' }, external })
     };
   }
 
-  protected present(data: any, external?: boolean): void {
+  protected present({ data, external }: PresentInput): void {
     if ('state' in data) {
       this.model.state = data.state;
     }
-    this.states.render(this.model, external);
+    this.states.render({ model: this.model, external });
   }
 
   protected representation(model: Model): void {
-    if (this.states.positive(model)) {
-      this.views.positive(model, this.element);
+    if (this.states.positive({ model })) {
+      this.views.positive({ model, element: this.element });
     }
-    if (this.states.negative(model)) {
-      this.views.negative(model, this.element);
+    if (this.states.negative({ model })) {
+      this.views.negative({ model, element: this.element });
     }
-    if (this.states.neutral(model)) {
-      this.views.neutral(model, this.element);
+    if (this.states.neutral({ model })) {
+      this.views.neutral({ model, element: this.element });
     }
   }
 
   protected get states(): States {
     return {
       ...super.states,
-      positive: (model: Model) => model.state === 'positive',
-      negative: (model: Model) => model.state === 'negative',
-      neutral: (model: Model) => model.state === 'neutral'
+      positive: ({ model }: StateInput) => model.state === 'positive',
+      negative: ({ model }: StateInput) => model.state === 'negative',
+      neutral: ({ model }: StateInput) => model.state === 'neutral'
     };
   }
 
   protected get views(): Views {
     return {
-      positive: (_model: Model, element: HTMLElement) => {
+      positive: ({ element }: ViewInput) => {
         element.classList.remove('negative', 'neutral');
         element.classList.add('positive');
       },
-      negative: (_model: Model, element: HTMLElement) => {
+      negative: ({ element }: ViewInput) => {
         element.classList.remove('positive', 'neutral');
         element.classList.add('negative');
       },
-      neutral: (_model: Model, element: HTMLElement) => {
+      neutral: ({ element }: ViewInput) => {
         element.classList.remove('positive', 'negative');
         element.classList.add('neutral');
       }

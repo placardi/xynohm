@@ -1,4 +1,14 @@
-import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
+import {
+  ActionInput,
+  Actions,
+  Component,
+  Model,
+  PresentInput,
+  StateInput,
+  States,
+  ViewInput,
+  Views
+} from '@placardi/xynohm';
 
 export class ButtonComponent extends Component {
   constructor(model: Model, uuid: string, element: HTMLElement) {
@@ -7,16 +17,16 @@ export class ButtonComponent extends Component {
 
   public get actions(): Actions {
     return {
-      fetch: (_data?: any, external?: boolean) => {
-        this.present({ fetching: true }, external);
+      fetch: ({ external }: ActionInput) => {
+        this.present({ data: { fetching: true }, external });
         fetch('https://randomuser.me/api/')
           .then(response => response.json())
-          .then(json => this.present(json.results[0], external));
+          .then(json => this.present({ data: json.results[0], external }));
       }
     };
   }
 
-  protected present(data: any, external?: boolean): void {
+  protected present({ data, external }: PresentInput): void {
     if ('fetching' in data) {
       this.model.transient.fetching = true;
     }
@@ -24,29 +34,29 @@ export class ButtonComponent extends Component {
       this.model.uuid = data.login.uuid;
       this.model.transient.uuid = this.model.uuid;
     }
-    this.states.render(this.model, external);
+    this.states.render({ model: this.model, external });
   }
 
   protected representation(model: Model): void {
-    if (this.states.uuidChanged(model)) {
-      this.views.uuidChanged(model, this.element);
+    if (this.states.uuidChanged({ model })) {
+      this.views.uuidChanged({ model, element: this.element });
     }
-    if (this.states.fetching(model)) {
-      this.views.fetching(model, this.element);
+    if (this.states.fetching({ model })) {
+      this.views.fetching({ model, element: this.element });
     }
   }
 
   protected get states(): States {
     return {
       ...super.states,
-      fetching: (model: Model) => !!model.transient.fetching,
-      uuidChanged: (model: Model) => !!model.transient.uuid
+      fetching: ({ model }: StateInput) => !!model.transient.fetching,
+      uuidChanged: ({ model }: StateInput) => !!model.transient.uuid
     };
   }
 
   protected get views(): Views {
     return {
-      uuidChanged: (model: Model, element: HTMLElement) => {
+      uuidChanged: ({ model, element }: ViewInput) => {
         element.removeAttribute('disabled');
         (element.querySelector('.button-text') as HTMLElement).classList.remove(
           'hidden'
@@ -56,7 +66,7 @@ export class ButtonComponent extends Component {
         );
         setTimeout(() => alert('New UUID: ' + model.uuid), 1);
       },
-      fetching: (_model: Model, element: HTMLElement) => {
+      fetching: ({ element }: ViewInput) => {
         element.setAttribute('disabled', '');
         (element.querySelector('.button-text') as HTMLElement).classList.add(
           'hidden'

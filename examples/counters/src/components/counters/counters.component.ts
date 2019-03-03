@@ -1,4 +1,14 @@
-import { Actions, Component, Model, States, Views } from '@placardi/xynohm';
+import {
+  ActionInput,
+  Actions,
+  Component,
+  Model,
+  PresentInput,
+  StateInput,
+  States,
+  ViewInput,
+  Views
+} from '@placardi/xynohm';
 import { CounterComponent } from '../counter/counter.component';
 
 export class CountersComponent extends Component {
@@ -8,31 +18,35 @@ export class CountersComponent extends Component {
 
   public get actions(): Actions {
     return {
-      add: (_data?: any, external?: boolean) =>
-        this.present({ add: true }, external),
-      remove: (_data?: any, external?: boolean) =>
-        this.present({ remove: true }, external),
-      addHighlight: (_data?: any, _external?: boolean, event?: Event) => {
+      add: ({ external }: ActionInput) =>
+        this.present({ data: { add: true }, external }),
+      remove: ({ external }: ActionInput) =>
+        this.present({ data: { remove: true }, external }),
+      addHighlight: ({ event }: ActionInput) => {
         const target: HTMLElement | undefined =
           event && (event.target as HTMLElement);
         if (target) {
           const index: number = Array.from(
             (target.parentNode as HTMLElement).children
           ).indexOf(target);
-          this.components.children.counter[index].addHighlight(null, true);
+          this.components.children.counter[index].addHighlight({
+            external: true
+          });
         }
       },
-      removeHighlight: (_data?: any, _external?: boolean, event?: Event) => {
+      removeHighlight: ({ event }: ActionInput) => {
         const target: HTMLElement | undefined =
           event && (event.target as HTMLElement);
         if (target) {
           const index: number = Array.from(
             (target.parentNode as HTMLElement).children
           ).indexOf(target);
-          this.components.children.counter[index].removeHighlight(null, true);
+          this.components.children.counter[index].removeHighlight({
+            external: true
+          });
         }
       },
-      observe: (_data?: any, _external?: boolean, event?: Event) => {
+      observe: ({ event }: ActionInput) => {
         if (event) {
           alert(
             `Component with UUID ${
@@ -44,44 +58,47 @@ export class CountersComponent extends Component {
     };
   }
 
-  protected present(data: any, external?: boolean): void {
+  protected present({ data, external }: PresentInput): void {
     if ('add' in data) {
       this.model.transient.add = true;
     }
     if ('remove' in data) {
       this.model.transient.remove = true;
     }
-    this.states.render(this.model, external);
+    this.states.render({ model: this.model, external });
   }
 
   protected representation(model: Model): void {
-    if (this.states.add(model)) {
-      this.views.add(model, this.element);
+    if (this.states.add({ model })) {
+      this.views.add({ model, element: this.element });
     }
-    if (this.states.remove(model)) {
-      this.views.remove(model, this.element);
+    if (this.states.remove({ model })) {
+      this.views.remove({ model, element: this.element });
     }
   }
 
   protected get states(): States {
     return {
       ...super.states,
-      add: (model: Model) => !!model.transient.add,
-      remove: (model: Model) => !!model.transient.remove
+      add: ({ model }: StateInput) => !!model.transient.add,
+      remove: ({ model }: StateInput) => !!model.transient.remove
     };
   }
 
   protected get views(): Views {
     return {
-      add: (_model: Model, element: HTMLElement) => {
+      add: ({ model, element }: ViewInput) => {
         element.appendChild(
           this.mounter.mountComponent(
             CounterComponent,
             {
-              id: this.components.children.counter
-                ? this.components.children.counter.length
-                : 0,
-              value: 0
+              counter: {
+                id: this.components.children.counter
+                  ? this.components.children.counter.length
+                  : 0,
+                value: Math.floor(21 * Math.random() - 10)
+              },
+              buttons: model.buttons
             },
             {
               _mouseenter: 'Counters.addHighlight()',
@@ -91,7 +108,7 @@ export class CountersComponent extends Component {
           )
         );
       },
-      remove: (_model: Model, element: HTMLElement) => {
+      remove: ({ element }: ViewInput) => {
         if (element.children.length > 0) {
           this.mounter.unmountComponent(
             (element.lastElementChild as HTMLElement).getAttribute(

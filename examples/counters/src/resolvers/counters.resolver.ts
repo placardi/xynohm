@@ -17,8 +17,7 @@ export class CountersResolver extends Resolver {
           value: -1
         }
       ],
-      numberOfCounters: 3,
-      button: {
+      buttons: {
         add: 'Add',
         subtract: 'Subtract',
         reset: 'Reset',

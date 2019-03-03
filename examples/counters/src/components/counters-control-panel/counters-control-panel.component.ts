@@ -1,4 +1,13 @@
-import { Actions, Component, Model, States } from '@placardi/xynohm';
+import {
+  ActionInput,
+  Actions,
+  Component,
+  Model,
+  PresentInput,
+  RenderInput,
+  StateInput,
+  States
+} from '@placardi/xynohm';
 
 export class CountersControlPanelComponent extends Component {
   constructor(model: Model, uuid: string, element: HTMLElement) {
@@ -7,37 +16,37 @@ export class CountersControlPanelComponent extends Component {
 
   public get actions(): Actions {
     return {
-      add: (_data?: any, external?: boolean) =>
-        this.present({ add: true }, external),
-      remove: (_data?: any, external?: boolean) =>
-        this.present({ remove: true }, external)
+      add: ({ external }: ActionInput) =>
+        this.present({ data: { add: true }, external }),
+      remove: ({ external }: ActionInput) =>
+        this.present({ data: { remove: true }, external })
     };
   }
 
-  protected present(data: any, external?: boolean): void {
+  protected present({ data, external }: PresentInput): void {
     if ('add' in data) {
       this.model.transient.add = true;
     }
     if ('remove' in data) {
       this.model.transient.remove = true;
     }
-    this.states.render(this.model, external);
+    this.states.render({ model: this.model, external });
   }
 
   protected get states(): States {
     return {
       ...super.states,
-      add: (model: Model) => !!model.transient.add,
-      remove: (model: Model) => !!model.transient.remove
+      add: ({ model }: StateInput) => !!model.transient.add,
+      remove: ({ model }: StateInput) => !!model.transient.remove
     };
   }
 
-  protected next(model: Model, external?: boolean): void {
-    if (this.states.add(model) && !external) {
-      this.components.siblings.counters[0].add(null, true);
+  protected next({ model, external }: RenderInput): void {
+    if (this.states.add({ model }) && !external) {
+      this.components.siblings.counters[0].add({ external: true });
     }
-    if (this.states.remove(model) && !external) {
-      this.components.siblings.counters[0].remove(null, true);
+    if (this.states.remove({ model }) && !external) {
+      this.components.siblings.counters[0].remove({ external: true });
     }
   }
 }
