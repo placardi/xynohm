@@ -1,13 +1,38 @@
 import { Nameable, Templateable } from './common';
 import { ComponentMounter } from './mounter';
 
-type Action = (data?: any, external?: boolean, event?: Event) => void;
-type State = (model: Model) => boolean;
-type View = (model: Model, element: HTMLElement) => void;
-type Render = (model: Model, external?: boolean) => void;
+type Action = (args: ActionInput) => void;
+type State = (args: StateInput) => boolean;
+type View = (args: ViewInput) => void;
+type Render = (args: RenderInput) => void;
 
 interface Actions {
   readonly [key: string]: Action;
+}
+
+interface ActionInput {
+  readonly data?: any;
+  readonly external?: boolean;
+  readonly event?: Event;
+}
+
+interface PresentInput {
+  readonly data: any;
+  readonly external?: boolean;
+}
+
+interface StateInput {
+  readonly model: Model;
+}
+
+interface ViewInput {
+  readonly model: Model;
+  readonly element: HTMLElement;
+}
+
+interface RenderInput {
+  readonly model: Model;
+  readonly external?: boolean;
 }
 
 interface Actionable {
@@ -39,6 +64,8 @@ interface ComponentInterface extends Nameable, Unique, Partial<OnInit> {
   readonly components: Dependencies;
   setDependencies(dependencies: Dependencies): void;
   setMounter(mounter: ComponentMounter): void;
+  getIsOnInitExecuted(): boolean;
+  setIsOnInitExecuted(isOnInitExecuted: boolean): void;
 }
 
 interface ComponentDefinition extends Templateable {
@@ -54,6 +81,11 @@ interface OnInit {
 }
 
 export {
+  ActionInput,
+  PresentInput,
+  StateInput,
+  ViewInput,
+  RenderInput,
   Actions,
   States,
   Views,

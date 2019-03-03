@@ -6,6 +6,7 @@ import { RouterOutlet } from './router-outlet';
 import { Template } from './template';
 
 export class Module implements ModuleInterface {
+  private components: ComponentDefinition[];
   private routerOutlet: RouterOutlet;
   private mounter: Mounter;
 
@@ -14,17 +15,23 @@ export class Module implements ModuleInterface {
     configuration: Configuration,
     routerOutlet: RouterOutlet
   ) {
+    this.components = components;
     this.routerOutlet = routerOutlet;
-    this.mounter = new Mounter(this.routerOutlet, configuration, components);
+    this.mounter = new Mounter(
+      this.routerOutlet,
+      configuration,
+      this.components
+    );
   }
 
   public render(data: object, components: ComponentInterface[]): HTMLElement {
     const model: object = data instanceof Object ? data : {};
-    this.mounter.mountComponents(
-      components,
-      this.template.process(model),
-      model
+    const { modelRefs, nodes } = this.template.process(
+      model,
+      this.routerOutlet.getAppRoot().getConfiguration(),
+      this.components
     );
+    this.mounter.mountComponents(components, nodes, { ...model, ...modelRefs });
     return this.mounter.getMountedElement();
   }
 

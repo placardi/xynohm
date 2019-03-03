@@ -6,11 +6,13 @@ import { Mounter } from './mounter';
 export class AppRoot implements AppRootInterface {
   private mounter: Mounter;
   private appData: object;
+  private configuration: Configuration;
   private mountedComponents: ComponentInterface[];
 
   constructor(configuration: Configuration, components: ComponentDefinition[]) {
     this.appData = {};
-    this.mounter = new Mounter(this, configuration, components);
+    this.configuration = configuration;
+    this.mounter = new Mounter(this, this.configuration, components);
   }
 
   public mountComponents(appData: object): ComponentInterface[] {
@@ -23,8 +25,12 @@ export class AppRoot implements AppRootInterface {
     return this.mountedComponents;
   }
 
-  public getAppData() {
+  public getAppData(): object {
     return this.appData;
+  }
+
+  public getConfiguration(): Configuration {
+    return this.configuration;
   }
 
   public getMountedComponents(): ComponentInterface[] {

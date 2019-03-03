@@ -18,6 +18,10 @@ export class RouterOutlet implements RouterOutletInterface {
     return this.appRoot.getRouterOutlet();
   }
 
+  public getAppRoot(): AppRoot {
+    return this.appRoot;
+  }
+
   public replaceContent(pathname: string, route: RouteInterface): void {
     if (pathname in this.routerOutletCache) {
       this.routerOutletCache[
@@ -43,16 +47,17 @@ export class RouterOutlet implements RouterOutletInterface {
             },
             appRootComponents
           );
-          const allComponents: ComponentInterface[] = appRootComponents.concat(
-            route.module.getMountedComponents()
-          );
+          const allComponents: ComponentInterface[] = route.module.getMountedComponents();
           route.module.assignDependencies(allComponents);
           allComponents.forEach(component =>
             component.element.dispatchEvent(this.componentsLoadedEvent)
           );
-          allComponents.forEach(
-            component => component.onInit && component.onInit()
-          );
+          allComponents.forEach(component => {
+            if (component.onInit && !component.getIsOnInitExecuted()) {
+              component.onInit();
+              component.setIsOnInitExecuted(true);
+            }
+          });
           this.appRoot.replaceRouterOutlet(
             this.routerOutletCache[pathname],
             route.module.name
@@ -63,16 +68,17 @@ export class RouterOutlet implements RouterOutletInterface {
           appData,
           appRootComponents
         );
-        const allComponents: ComponentInterface[] = appRootComponents.concat(
-          route.module.getMountedComponents()
-        );
+        const allComponents: ComponentInterface[] = route.module.getMountedComponents();
         route.module.assignDependencies(allComponents);
         allComponents.forEach(component =>
           component.element.dispatchEvent(this.componentsLoadedEvent)
         );
-        allComponents.forEach(
-          component => component.onInit && component.onInit()
-        );
+        allComponents.forEach(component => {
+          if (component.onInit && !component.getIsOnInitExecuted()) {
+            component.onInit();
+            component.setIsOnInitExecuted(true);
+          }
+        });
         this.appRoot.replaceRouterOutlet(
           this.routerOutletCache[pathname],
           route.module.name

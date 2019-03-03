@@ -6,6 +6,17 @@ import {
 } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { MounterInterface } from '../types/mounter';
+import {
+  camelCaseToDash,
+  convertDataType,
+  dashToCamelCase,
+  evaluateObjectFromPattern,
+  generateUUID,
+  getComponentName,
+  isCustomElement,
+  lcfirst,
+  ucfirst
+} from './utils';
 
 export class Mounter implements MounterInterface {
   private appData: object;
@@ -15,6 +26,7 @@ export class Mounter implements MounterInterface {
   private mountedElement: HTMLElement;
   private mountedComponents: ComponentInterface[];
   private componentsLoadedEvent: CustomEvent;
+  private modelRefs: { [key: string]: object };
 
   constructor(
     content: WithElement,
@@ -27,6 +39,7 @@ export class Mounter implements MounterInterface {
     this.components = components;
     this.configuration = configuration;
     this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
+    this.modelRefs = {};
   }
 
   public mountComponent(
@@ -68,7 +81,9 @@ export class Mounter implements MounterInterface {
     this.appData = { ...this.appData, ...data };
     this.mountedElement = this._mountComponents(
       Array.from(nodes).reduce((element: HTMLElement, node: Node) => {
-        if (this.isCustomElement(node)) {
+        if (
+          isCustomElement(node, this.configuration.tagPrefix, this.components)
+        ) {
           this.markElementAsComponent(node as HTMLElement);
         }
         element.appendChild(node);
@@ -126,33 +141,63 @@ export class Mounter implements MounterInterface {
 
   private _mountComponent(
     component: ComponentDefinition,
-    properties: object,
+    properties: { [key: string]: any },
     attributes: object,
+    modelRef?: string,
     events?: Attr[],
     internal?: boolean
   ): HTMLElement {
-    component.template.getProperties().forEach(property => {
-      if (!(property in properties)) {
-        properties = { ...properties, [property]: null };
+    const expectedProperties: string[] = component.template.getProperties();
+    for (const property in properties) {
+      if (
+        property in properties &&
+        expectedProperties.indexOf(property) === -1
+      ) {
+        delete properties[property];
+      }
+    }
+    expectedProperties.forEach(property => {
+      if (
+        property in this.appData &&
+        typeof properties[property] === 'string'
+      ) {
+        const result: any = evaluateObjectFromPattern(
+          this.appData,
+          properties[property]
+        );
+        if (result) {
+          properties = { ...properties, [property]: result };
+        }
       }
     });
-    const model = { ...this.appData, ...properties };
-    const tagName: string =
-      this.configuration.tagPrefix +
-      '-' +
-      this.camelCaseToDash(this.getComponentName(component, true));
+    const { modelRefs, nodes } = component.template.process(
+      !!modelRef ? { ...properties, ...this.modelRefs[modelRef] } : properties,
+      this.configuration,
+      this.components
+    );
+    this.modelRefs = { ...this.modelRefs, ...modelRefs };
     const element: HTMLElement = this.createElement(
-      tagName,
-      component.template.process(model)
+      this.configuration.tagPrefix +
+        '-' +
+        camelCaseToDash(getComponentName(component, true)),
+      nodes
     );
     if (!internal) {
       Object.entries(attributes).forEach(([key, value]) => {
         element.setAttribute(key, value);
       });
     }
-    const uuid: string = this.generateUUID();
+    const uuid: string = generateUUID();
     this.markElementAsProcessed(element, uuid, events);
-    const instance: ComponentInterface = new component(model, uuid, element);
+    const instance: ComponentInterface = new component(
+      Object.entries(
+        !!modelRef ? { ...properties, ...this.modelRefs[modelRef] } : properties
+      )
+        .filter(([key]) => Object.keys(properties).indexOf(key) !== -1)
+        .reduce((obj: object, [key, value]) => ({ ...obj, [key]: value }), {}),
+      uuid,
+      element
+    );
     instance.setMounter(this);
     this.bindEvents(element, instance);
     this.mountedComponents.push(instance);
@@ -165,8 +210,9 @@ export class Mounter implements MounterInterface {
             if (mutation.type === 'childList') {
               this.assignDependencies();
               instance.element.dispatchEvent(this.componentsLoadedEvent);
-              if (instance.onInit) {
+              if (instance.onInit && !instance.getIsOnInitExecuted()) {
                 instance.onInit();
+                instance.setIsOnInitExecuted(true);
               }
             }
           });
@@ -182,25 +228,6 @@ export class Mounter implements MounterInterface {
     return element;
   }
 
-  private isCustomElement(node: Node): boolean {
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      const tagName: string = (node as Element).tagName.toLowerCase();
-      const componentName: string = this.dashToCamelCase(
-        tagName.replace(this.configuration.tagPrefix.toLowerCase() + '-', '')
-      );
-      const componentNames: string[] = this.components.map(component =>
-        this.lcfirst(this.getComponentName(component, true))
-      );
-      return (
-        new RegExp(
-          '/*' + this.configuration.tagPrefix.toLowerCase() + '(-\\w+)+',
-          'gi'
-        ).test(tagName) && componentNames.indexOf(componentName) !== -1
-      );
-    }
-    return false;
-  }
-
   private markElementAsComponent(element: Element): Element {
     element.setAttribute('component', '');
     return element;
@@ -211,18 +238,19 @@ export class Mounter implements MounterInterface {
     while (element) {
       const elementTag = element.tagName.toLowerCase();
       const componentName =
-        this.ucfirst(
-          this.dashToCamelCase(
+        ucfirst(
+          dashToCamelCase(
             elementTag.replace(this.configuration.tagPrefix + '-', '')
           )
         ) + 'Component';
       const componentIndex = this.components
-        .map(component => this.getComponentName(component).toLowerCase())
+        .map(component => getComponentName(component).toLowerCase())
         .indexOf(componentName.toLowerCase());
       const mountedElement: HTMLElement = this._mountComponent(
         this.components[componentIndex],
         this.unwrapDataset(element.dataset),
         {},
+        element.getAttribute('model-ref') || undefined,
         this.getEvents(element.attributes),
         true
       );
@@ -242,24 +270,11 @@ export class Mounter implements MounterInterface {
     return content.querySelector('*[component]:not([processed])');
   }
 
-  private generateUUID(): string {
-    let d = new Date().getTime();
-    if (
-      typeof performance !== 'undefined' &&
-      typeof performance.now === 'function'
-    ) {
-      d += performance.now();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
-  }
-
   private markElementsAsComponents(content: Element): void {
     content.querySelectorAll('*').forEach(element => {
-      if (this.isCustomElement(element)) {
+      if (
+        isCustomElement(element, this.configuration.tagPrefix, this.components)
+      ) {
         this.markElementAsComponent(element);
       }
     });
@@ -280,68 +295,10 @@ export class Mounter implements MounterInterface {
     return element;
   }
 
-  private lcfirst(str: string): string {
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  }
-
-  private ucfirst(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  private camelCaseToDash(str: string): string {
-    return str
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .replace(/([0-9])([^0-9])/g, '$1-$2')
-      .replace(/([^0-9])([0-9])/g, '$1-$2')
-      .replace(/-+/g, '-')
-      .toLowerCase();
-  }
-
-  private dashToCamelCase(str: string): string {
-    return str.toLowerCase().replace(/-(.)/g, m => m[1].toUpperCase());
-  }
-
-  private getComponentName(
-    component: ComponentDefinition | ComponentInterface,
-    removePostfix?: boolean
-  ): string {
-    return !removePostfix
-      ? component.name
-      : component.name.replace('Component', '');
-  }
-
   private unwrapDataset(dataset: DOMStringMap): object {
     return Object.entries(dataset)
-      .map(([key, value]) => [key, this.convertDataType(value as string)])
+      .map(([key, value]) => [key, convertDataType(value as string)])
       .reduce((obj: object, [key, value]) => ({ ...obj, [key]: value }), {});
-  }
-
-  private convertDataType(data: string): any {
-    const hasBracesRegEx: RegExp = /^(^\s*\{\s*[A-Z0-9._]+\s*:\s*[A-Z0-9._]+\s*(,\s*[A-Z0-9._]+\s*:\s*[A-Z0-9._]+\s*)*\}\s*$|\[[\w\W]*\])$/;
-    if (data.length === 0) {
-      return '';
-    }
-    if (data === 'true') {
-      return true;
-    }
-    if (data === 'false') {
-      return false;
-    }
-    if (data === 'null') {
-      return null;
-    }
-    if (data === 'undefined') {
-      return undefined;
-    }
-    if (data === +data + '') {
-      return +data;
-    }
-    if (hasBracesRegEx.test(data)) {
-      return JSON.parse(data.replace(new RegExp('(\\\\)', 'g'), ''));
-    }
-    return data.replace(/['"]+/g, '');
   }
 
   private createElement(tag: string, nodes: NodeList): HTMLElement {
@@ -377,8 +334,11 @@ export class Mounter implements MounterInterface {
       .forEach(child =>
         this.getEvents(child.attributes).forEach(
           event =>
-            !this.isCustomElement(child) &&
-            this.bindEvent(event, instance, child)
+            !isCustomElement(
+              child,
+              this.configuration.tagPrefix,
+              this.components
+            ) && this.bindEvent(event, instance, child)
         )
       );
     this.getEvents(element.attributes).forEach(event =>
@@ -398,26 +358,27 @@ export class Mounter implements MounterInterface {
     const actionName: string =
       argumentsIndex !== -1 ? eventName.substr(0, argumentsIndex) : eventName;
     const actionNameParts: string[] = actionName.split('.');
-    const actionArguments: number =
-      argumentsIndex !== -1
-        ? this.convertDataType(eventName.slice(argumentsIndex + 1, -1))
-        : undefined;
     if (actionNameParts.length > 1) {
       const componentName: string = actionNameParts[0];
       const method: string = actionNameParts[1];
       const actions =
-        componentName === this.getComponentName(instance, true)
+        componentName === getComponentName(instance, true)
           ? instance.actions
           : this.mountedComponents[
               this.mountedComponents
-                .map(component => this.getComponentName(component, true))
+                .map(component => getComponentName(component, true))
                 .lastIndexOf(componentName)
             ].actions;
       if (method in actions) {
-        element.removeEventListener(eventType, actions[method]);
-        element.addEventListener(
-          eventType,
-          actions[method].bind(instance, actionArguments, undefined)
+        element.removeEventListener(eventType, () => actions[method]);
+        element.addEventListener(eventType, (e: Event) =>
+          actions[method].call(instance, {
+            data:
+              argumentsIndex !== -1
+                ? convertDataType(eventName.slice(argumentsIndex + 1, -1))
+                : undefined,
+            event: e
+          })
         );
       }
     } else {
@@ -429,7 +390,7 @@ export class Mounter implements MounterInterface {
 
   private groupByComponentName(components: ComponentInterface[]): Actionable {
     return components.reduce((acc: Actionable, obj: ComponentInterface) => {
-      const key: string = this.lcfirst(this.getComponentName(obj, true));
+      const key: string = lcfirst(getComponentName(obj, true));
       (acc[key] = acc[key] || []).push(obj.actions);
       return acc;
     }, {});
