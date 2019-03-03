@@ -97,6 +97,9 @@ export class TemplateParser implements TemplateParserInterface {
       (part.indexOf('[') !== -1 && part.indexOf(']') !== -1)
     ) {
       const value: any = evaluateObjectFromPattern(model, part);
+      if (isString(value)) {
+        return `"${value}"`;
+      }
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
         : value !== undefined && value !== null
@@ -146,7 +149,7 @@ export class TemplateParser implements TemplateParserInterface {
             .map(part => this.evaluateExpressionPart(part, model))
             .join(' ')
             .replace(this.regEx.logicalOperators, match =>
-              match.split(' ').join()
+              match.split(' ').join('')
             );
           if (!eval(expression)) {
             return null;
