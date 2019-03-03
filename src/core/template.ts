@@ -30,6 +30,6 @@ export class Template implements TemplateInterface {
   }
 
   public getProperties(): string[] {
-    return Object.keys(this.template.dataset).map(key => key.toLowerCase());
+    return Object.keys(this.template.dataset);
   }
 }
