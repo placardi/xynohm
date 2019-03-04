@@ -17,8 +17,8 @@ export class TemplateParser implements TemplateParserInterface {
   private components: ComponentDefinition[];
   private regEx: { [name: string]: RegExp } = {
     moustaches: /{{\s*([\w\.\^ *\/\+\-\(\)\=\?\:\'\"\!\[\]&;]+)?\s*}}/g,
-    maths: /((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*)*)|(\.\w+())|(\w+((\.\w+)|(\[\d\])|(\[[\"\']?\w+[\"\']?\]))+)|(\'\w+\')|(\"\w+\")|(\d+)|"(\w+)"|(\w+)|(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\))|\:|\?|\'|\"/g,
-    logicalOperators: /(=\s*=\s*=)|(=\s*=)|(!\s*=\s*=)|(!\s*=)|(<\s*=)|(>\s*=)/g
+    maths: /(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\)|\:|\?|\'|\")|((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*(\(\[.+\]\))*(\(\{.+\}\))*)+)/g,
+    logicalOperators: /(=\s*=\s*=)|(=\s*=)|(!\s*=\s*=)|(!\s*=)|(<\s*=)|(>\s*=)|(&\s*&)|(\|\s*\|)/g
   };
 
   public parse(
@@ -83,9 +83,16 @@ export class TemplateParser implements TemplateParserInterface {
       .map(moustache => (moustache === null ? 'null' : moustache.toString()));
   }
 
-  private evaluateExpressionPart(part: string, model: any): string {
+  private evaluateExpressionPart(
+    part: string,
+    model: any,
+    escapeStrings?: boolean
+  ): string {
     if (part in model) {
       const value: any = model[part];
+      if (escapeStrings && isString(value)) {
+        return `'${value}'`;
+      }
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
         : value !== undefined && value !== null
@@ -97,6 +104,9 @@ export class TemplateParser implements TemplateParserInterface {
       (part.indexOf('[') !== -1 && part.indexOf(']') !== -1)
     ) {
       const value: any = evaluateObjectFromPattern(model, part);
+      if (escapeStrings && isString(value)) {
+        return `'${value}'`;
+      }
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
         : value !== undefined && value !== null
@@ -143,7 +153,7 @@ export class TemplateParser implements TemplateParserInterface {
             moustaches,
             attributeValue
           ).match(this.regEx.maths) as RegExpMatchArray)
-            .map(part => this.evaluateExpressionPart(part, model))
+            .map(part => this.evaluateExpressionPart(part, model, true))
             .join(' ')
             .replace(this.regEx.logicalOperators, match =>
               match.split(' ').join('')
