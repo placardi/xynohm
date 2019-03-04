@@ -22,12 +22,47 @@ export const dashToCamelCase: (str: string) => string = (str: string) =>
 export const evaluateObjectFromPattern: (
   object: { [key: string]: any },
   pattern: string
-) => any = (object: { [key: string]: any }, pattern: string) =>
-  pattern
-    .replace(/]/g, '')
-    .replace(/\[/g, '.')
+) => any = (object: { [key: string]: any }, pattern: string) => {
+  const brackets: RegExpMatchArray | null = pattern.match(
+    /\[((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*)*)\]/g
+  );
+  if (!!brackets) {
+    const parsedBrackets: Array<{
+      original: string;
+      parsed: string;
+    }> = brackets
+      .map(item => ({
+        original: item,
+        parsed: item.slice(1, -1)
+      }))
+      .filter(({ parsed }) => isNaN(Number(parsed)))
+      .map(({ original, parsed }) => ({
+        original,
+        parsed: evaluateObjectFromPattern(object, parsed)
+      }));
+    if (
+      parsedBrackets.find(
+        ({ parsed }) =>
+          typeof parsed === 'boolean' ||
+          parsed === null ||
+          parsed === undefined ||
+          (parsed as any) instanceof Array ||
+          (parsed as any) instanceof Object
+      )
+    ) {
+      return undefined;
+    } else {
+      parsedBrackets.forEach(({ original, parsed }) => {
+        pattern = pattern.replace(original, `['${parsed}']`);
+      });
+    }
+  }
+  return pattern
+    .replace(/[\'\"]?\]/g, '')
+    .replace(/\[[\'\"]?/g, '.')
     .split('.')
     .reduce((previous, current) => previous && previous[current], object);
+};
 
 export const generateUUID: () => string = () => {
   let d = new Date().getTime();

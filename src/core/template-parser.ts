@@ -17,7 +17,7 @@ export class TemplateParser implements TemplateParserInterface {
   private components: ComponentDefinition[];
   private regEx: { [name: string]: RegExp } = {
     moustaches: /{{\s*([\w\.\^ *\/\+\-\(\)\=\?\:\'\"\!\[\]&;]+)?\s*}}/g,
-    maths: /(\w+((\.\w+)|(\[\d\]))+)|(\'\w+\')|(\"\w+\")|(\d+)|"(\w+)"|(\w+)|(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\))|\:|\?|\'|\"/g,
+    maths: /((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*)*)|(\.\w+())|(\w+((\.\w+)|(\[\d\])|(\[[\"\']?\w+[\"\']?\]))+)|(\'\w+\')|(\"\w+\")|(\d+)|"(\w+)"|(\w+)|(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\))|\:|\?|\'|\"/g,
     logicalOperators: /(=\s*=\s*=)|(=\s*=)|(!\s*=\s*=)|(!\s*=)|(<\s*=)|(>\s*=)/g
   };
 
@@ -97,9 +97,6 @@ export class TemplateParser implements TemplateParserInterface {
       (part.indexOf('[') !== -1 && part.indexOf(']') !== -1)
     ) {
       const value: any = evaluateObjectFromPattern(model, part);
-      if (isString(value)) {
-        return `"${value}"`;
-      }
       return value instanceof Object
         ? JSON.stringify(value, null, 2)
         : value !== undefined && value !== null
