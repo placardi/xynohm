@@ -31,6 +31,17 @@ export class Router implements RouterInterface {
         this.createPath(route.path, pathname)
       );
     }
+    if (
+      this.configuration.removeTrailingSlash &&
+      location.pathname.length > 1 &&
+      location.pathname.endsWith('/')
+    ) {
+      history.replaceState(
+        null,
+        route.name,
+        this.createPath(route.path, pathname)
+      );
+    }
   }
 
   public registerAnchorsWithRoutePaths(element: Element): void {
