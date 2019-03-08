@@ -224,6 +224,7 @@ export class TemplateParser implements TemplateParserInterface {
                         )
                     : { [iterator]: value };
                 currentModel = { ...currentModel, ...value };
+                const modelUUID = generateUUID();
                 if (
                   isCustomElement(
                     clone,
@@ -231,13 +232,24 @@ export class TemplateParser implements TemplateParserInterface {
                     this.components
                   )
                 ) {
-                  const modelUUID = generateUUID();
                   clone.setAttribute('model-ref', modelUUID);
-                  this.modelRefs = {
-                    ...this.modelRefs,
-                    [modelUUID]: currentModel
-                  };
+                } else {
+                  clone.querySelectorAll('*').forEach(element => {
+                    if (
+                      isCustomElement(
+                        element,
+                        this.configuration.tagPrefix,
+                        this.components
+                      )
+                    ) {
+                      element.setAttribute('model-ref', modelUUID);
+                    }
+                  });
                 }
+                this.modelRefs = {
+                  ...this.modelRefs,
+                  [modelUUID]: currentModel
+                };
                 const html: string = this.nodesToHTML([clone]);
                 processedNodes.push(
                   document.importNode(
