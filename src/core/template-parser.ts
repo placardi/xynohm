@@ -17,7 +17,7 @@ export class TemplateParser implements TemplateParserInterface {
   private components: ComponentDefinition[];
   private regEx: { [name: string]: RegExp } = {
     moustaches: /{{\s*([\w\.\^ *\/\+\-\(\)\=\?\:\'\"\!\[\]&;]+)?\s*}}/g,
-    maths: /(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\)|\:|\?|\'|\")|((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*(\(\[.+\]\))*(\(\{.+\}\))*)+)/g,
+    maths: /(\+|-|\*|\/|=|>|<|>=|<=|&|\||%|!|\^|\(|\)|\:|\?)|((\.?\w+(\[[\"\']?\w+[\"\']?\])*(\[.+\])*(\(\[.+\]\))*(\(\{.+\}\))*)+)|(^\'.+\'$)|(^\".+\"$)/g,
     logicalOperators: /(=\s*=\s*=)|(=\s*=)|(!\s*=\s*=)|(!\s*=)|(<\s*=)|(>\s*=)|(&\s*&)|(\|\s*\|)/g
   };
 
@@ -61,11 +61,12 @@ export class TemplateParser implements TemplateParserInterface {
   private parseMoustaches(html: string, model: object): string[] {
     return this.getMoustaches(html)
       .map(moustache => {
-        const expression: string = (moustache
-          .slice(2, -2)
-          .trim()
-          .match(this.regEx.maths) as RegExpMatchArray)
-          .map(part => this.evaluateExpressionPart(part, model))
+        let expression: string = moustache.slice(2, -2).trim();
+        if (expression.length === 0) {
+          return '';
+        }
+        expression = (expression.match(this.regEx.maths) as RegExpMatchArray)
+          .map(part => this.evaluateExpressionPart(part, model, true))
           .join(' ')
           .replace(this.regEx.logicalOperators, match =>
             match.split(' ').join('')
@@ -74,7 +75,7 @@ export class TemplateParser implements TemplateParserInterface {
           return JSON.parse(expression) && expression;
         } catch (e) {
           try {
-            return isString(expression) ? expression : eval(expression);
+            return eval(expression);
           } catch (e) {
             return null;
           }
