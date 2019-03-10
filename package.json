@@ -1,6 +1,6 @@
 {
   "name": "@placardi/xynohm",
-  "version": "0.4.8-SNAPSHOT",
+  "version": "0.4.8",
   "description": "A VanillaJS way to build user interfaces.",
   "engines": {
     "node": ">= 10.14.1"
