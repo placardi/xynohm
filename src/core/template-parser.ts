@@ -224,7 +224,7 @@ export class TemplateParser implements TemplateParserInterface {
                         )
                     : { [iterator]: value };
                 currentModel = { ...currentModel, ...value };
-                const modelUUID = generateUUID();
+                const modelUUID: string = generateUUID();
                 if (
                   isCustomElement(
                     clone,
@@ -233,6 +233,10 @@ export class TemplateParser implements TemplateParserInterface {
                   )
                 ) {
                   clone.setAttribute('model-ref', modelUUID);
+                  this.modelRefs = {
+                    ...this.modelRefs,
+                    [modelUUID]: currentModel
+                  };
                 } else {
                   clone.querySelectorAll('*').forEach(element => {
                     if (
@@ -242,14 +246,27 @@ export class TemplateParser implements TemplateParserInterface {
                         this.components
                       )
                     ) {
-                      element.setAttribute('model-ref', modelUUID);
+                      if (element.hasAttribute('model-ref')) {
+                        const previousModelUUID: string = element.getAttribute(
+                          'model-ref'
+                        ) as string;
+                        this.modelRefs = {
+                          ...this.modelRefs,
+                          [modelUUID]: {
+                            ...this.modelRefs[previousModelUUID],
+                            ...currentModel
+                          }
+                        };
+                      } else {
+                        element.setAttribute('model-ref', modelUUID);
+                        this.modelRefs = {
+                          ...this.modelRefs,
+                          [modelUUID]: currentModel
+                        };
+                      }
                     }
                   });
                 }
-                this.modelRefs = {
-                  ...this.modelRefs,
-                  [modelUUID]: currentModel
-                };
                 const html: string = this.nodesToHTML([clone]);
                 processedNodes.push(
                   document.importNode(

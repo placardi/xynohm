@@ -14,6 +14,7 @@ import {
   generateUUID,
   getComponentName,
   isCustomElement,
+  isString,
   lcfirst,
   ucfirst
 } from './utils';
@@ -189,10 +190,14 @@ export class Mounter implements MounterInterface {
     }
     const uuid: string = generateUUID();
     this.markElementAsProcessed(element, uuid, events);
+    const model: { [key: string]: any } = !!modelRef
+      ? { ...properties, ...this.modelRefs[modelRef] }
+      : properties;
     const instance: ComponentInterface = new component(
-      Object.entries(
-        !!modelRef ? { ...properties, ...this.modelRefs[modelRef] } : properties
-      )
+      Object.entries(model)
+        .map(([key, value]) =>
+          isString(value) && value in model ? [key, model[value]] : [key, value]
+        )
         .filter(([key]) => Object.keys(properties).indexOf(key) !== -1)
         .reduce((obj: object, [key, value]) => ({ ...obj, [key]: value }), {}),
       uuid,
