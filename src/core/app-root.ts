@@ -48,11 +48,15 @@ export class AppRoot implements AppRootInterface {
   }
 
   public replaceRouterOutlet(
-    routerOutlet: Element,
+    newRouterOutlet: Element,
     moduleName: string
   ): Element {
-    routerOutlet.setAttribute('module', moduleName);
-    return this.element().replaceChild(routerOutlet, this.getRouterOutlet());
+    newRouterOutlet.setAttribute('module', moduleName);
+    const currentRouterOutlet: Element = this.getRouterOutlet();
+    return (currentRouterOutlet.parentElement as HTMLElement).replaceChild(
+      newRouterOutlet,
+      currentRouterOutlet
+    );
   }
 
   public element(): Element {

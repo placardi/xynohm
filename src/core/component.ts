@@ -97,5 +97,5 @@ export class Component implements ComponentInterface {
     return {};
   }
 
-  protected next({}): void {}
+  protected next({  }: RenderInput): void {}
 }
