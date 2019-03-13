@@ -30,7 +30,7 @@
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-typescript": "^7.3.3",
-    "@types/jest": "^23.3.14",
+    "@types/jest": "^24.0.11",
     "babel-loader": "^8.0.5",
     "base-href-webpack-plugin": "^2.0.0",
     "clean-css": "^4.2.1",
@@ -54,7 +54,7 @@
     "stylelint-webpack-plugin": "^0.10.5",
     "ts-jest": "^24.0.0",
     "ts-loader": "^5.3.3",
-    "tslint": "^5.13.1",
+    "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.6",
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "@placardi/xynohm": "^0.4.11",
+    "@placardi/xynohm": "^0.5.0",
     "whatwg-fetch": "^3.0.0"
   }
 }
