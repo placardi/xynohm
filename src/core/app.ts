@@ -95,7 +95,17 @@ export class App implements AppInterface {
           this.routerOutlet
         ),
         resolver:
-          (definition.resolver && new definition.resolver()) || undefined
+          (definition.resolver && new definition.resolver()) || undefined,
+        active: false,
+        activate(): void {
+          this.active = true;
+        },
+        deactivate(): void {
+          this.active = false;
+        },
+        isActive(): boolean {
+          return !!this.active;
+        }
       };
     });
   }

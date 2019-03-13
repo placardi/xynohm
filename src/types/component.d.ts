@@ -58,7 +58,12 @@ interface Dependencies {
   readonly globals: Actionable;
 }
 
-interface ComponentInterface extends Nameable, Unique, Partial<OnInit> {
+interface ComponentInterface
+  extends Nameable,
+    Unique,
+    Partial<OnInit>,
+    Partial<OnMount>,
+    Partial<OnUnmount> {
   readonly actions: Actions;
   readonly element: HTMLElement;
   readonly components: Dependencies;
@@ -66,6 +71,10 @@ interface ComponentInterface extends Nameable, Unique, Partial<OnInit> {
   setMounter(mounter: ComponentMounter): void;
   getIsOnInitExecuted(): boolean;
   setIsOnInitExecuted(isOnInitExecuted: boolean): void;
+  setGlobal(global: boolean): void;
+  isGlobal(): boolean;
+  setMounted(mounted: boolean): void;
+  isMounted(): boolean;
 }
 
 interface ComponentDefinition extends Templateable {
@@ -78,6 +87,14 @@ interface Unique {
 
 interface OnInit {
   onInit(): void;
+}
+
+interface OnMount {
+  onMount(): void;
+}
+
+interface OnUnmount {
+  onUnmount(): void;
 }
 
 export {
@@ -94,5 +111,7 @@ export {
   Dependencies,
   ComponentInterface,
   ComponentDefinition,
-  OnInit
+  OnInit,
+  OnMount,
+  OnUnmount
 };

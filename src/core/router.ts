@@ -20,8 +20,23 @@ export class Router implements RouterInterface {
   }
 
   public navigate(path?: string): void {
+    this.routes
+      .filter(r => r.isActive())
+      .forEach(r => {
+        r.module
+          .getMountedComponents()
+          .filter(c => !c.isGlobal() && c.isMounted())
+          .forEach(c => {
+            if (!!c.onUnmount && c.onUnmount instanceof Function) {
+              c.setMounted(false);
+              c.onUnmount();
+            }
+          });
+        r.deactivate();
+      });
     const pathname: string = path || this.getPathnameWithoutBaseHref();
     const route: RouteInterface = this.matchRoute(pathname);
+    route.activate();
     this.routerOutlet.replaceContent(pathname, route);
     this.registerAnchorsWithRoutePaths(this.routerOutlet.element());
     if (path) {
