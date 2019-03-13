@@ -18,6 +18,8 @@ export class Component implements ComponentInterface {
   private _mounter: ComponentMounter;
   private _model: Model = { transient: {} };
   private isOnInitExecuted: boolean = false;
+  private _global: boolean = false;
+  private _isMounted: boolean = false;
 
   constructor(model: Model, uuid: string, element: HTMLElement) {
     this._model = { ...this._model, ...model };
@@ -73,6 +75,22 @@ export class Component implements ComponentInterface {
 
   public setIsOnInitExecuted(isOnInitExecuted: boolean): void {
     this.isOnInitExecuted = isOnInitExecuted;
+  }
+
+  public setGlobal(global: boolean): void {
+    this._global = !!global;
+  }
+
+  public isGlobal(): boolean {
+    return this._global;
+  }
+
+  public setMounted(mounted: boolean): void {
+    this._isMounted = !!mounted;
+  }
+
+  public isMounted(): boolean {
+    return this._isMounted;
   }
 
   protected get model(): Model {

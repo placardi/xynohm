@@ -30,6 +30,12 @@ export class RouterOutlet implements RouterOutletInterface {
         this.routerOutletCache[pathname],
         route.module.name
       );
+      route.module.getMountedComponents().forEach(component => {
+        component.setMounted(true);
+        if (component.onMount && component.onMount instanceof Function) {
+          component.onMount();
+        }
+      });
     } else {
       const appData: object = this.appRoot.getAppData();
       const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
@@ -58,6 +64,12 @@ export class RouterOutlet implements RouterOutletInterface {
               component.setIsOnInitExecuted(true);
             }
           });
+          allComponents.forEach(component => {
+            component.setMounted(true);
+            if (component.onMount && component.onMount instanceof Function) {
+              component.onMount();
+            }
+          });
           this.appRoot.replaceRouterOutlet(
             this.routerOutletCache[pathname],
             route.module.name
@@ -77,6 +89,12 @@ export class RouterOutlet implements RouterOutletInterface {
           if (component.onInit && !component.getIsOnInitExecuted()) {
             component.onInit();
             component.setIsOnInitExecuted(true);
+          }
+        });
+        allComponents.forEach(component => {
+          component.setMounted(true);
+          if (component.onMount && component.onMount instanceof Function) {
+            component.onMount();
           }
         });
         this.appRoot.replaceRouterOutlet(

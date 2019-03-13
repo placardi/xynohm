@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "@placardi/xynohm": "^0.4.10",
+    "@placardi/xynohm": "^0.4.11",
     "whatwg-fetch": "^3.0.0"
   }
 }

@@ -12,7 +12,7 @@ export class AppRoot implements AppRootInterface {
   constructor(configuration: Configuration, components: ComponentDefinition[]) {
     this.appData = {};
     this.configuration = configuration;
-    this.mounter = new Mounter(this, this.configuration, components);
+    this.mounter = new Mounter(this, this.configuration, components, true);
   }
 
   public mountComponents(appData: object): ComponentInterface[] {

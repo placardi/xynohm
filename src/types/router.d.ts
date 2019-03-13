@@ -10,7 +10,7 @@ interface Navigateable {
   registerAnchorsWithRoutePaths(element: Element): void;
 }
 
-interface RouteInterface extends Nameable, WithPath {
+interface RouteInterface extends Activateable, Nameable, WithPath {
   readonly module: ModuleInterface;
   readonly resolver: ResolverIntrface | undefined;
 }
@@ -22,6 +22,12 @@ interface RouteDefinitionInterface extends Nameable, WithPath {
 
 interface WithPath {
   readonly path: string;
+}
+
+interface Activateable {
+  activate(): void;
+  deactivate(): void;
+  isActive(): boolean;
 }
 
 export {

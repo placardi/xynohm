@@ -28,11 +28,13 @@ export class Mounter implements MounterInterface {
   private mountedComponents: ComponentInterface[];
   private componentsLoadedEvent: CustomEvent;
   private modelRefs: { [key: string]: object };
+  private global: boolean = false;
 
   constructor(
     content: WithElement,
     configuration: Configuration,
-    components: ComponentDefinition[]
+    components: ComponentDefinition[],
+    global?: boolean
   ) {
     this.appData = {};
     this.content = content;
@@ -41,6 +43,7 @@ export class Mounter implements MounterInterface {
     this.configuration = configuration;
     this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
     this.modelRefs = {};
+    this.global = !!global;
   }
 
   public mountComponent(
@@ -204,6 +207,7 @@ export class Mounter implements MounterInterface {
       element
     );
     instance.setMounter(this);
+    instance.setGlobal(this.global);
     this.bindEvents(element, instance);
     this.mountedComponents.push(instance);
     if (!internal) {
