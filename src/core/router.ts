@@ -42,6 +42,7 @@ export class Router implements RouterInterface {
         this.createPath(route.path, pathname)
       );
     }
+    window.dispatchEvent(new Event('navigation'));
   }
 
   public registerAnchorsWithRoutePaths(element: Element): void {
