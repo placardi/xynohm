@@ -284,6 +284,16 @@ export class TemplateParser implements TemplateParserInterface {
             return;
           }
         } else {
+          if (
+            isCustomElement(node, this.configuration.tagPrefix, this.components)
+          ) {
+            const modelUUID: string = generateUUID();
+            node.setAttribute('model-ref', modelUUID);
+            this.modelRefs = {
+              ...this.modelRefs,
+              [modelUUID]: model
+            };
+          }
           this.replaceChildrenInNode(
             node,
             this.processForDirective(
