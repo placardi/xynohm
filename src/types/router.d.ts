@@ -13,11 +13,13 @@ interface Navigateable {
 interface RouteInterface extends Activateable, Nameable, WithPath {
   readonly module: ModuleInterface;
   readonly resolver: ResolverIntrface | undefined;
+  readonly partial?: boolean;
 }
 
 interface RouteDefinitionInterface extends Nameable, WithPath {
   readonly module: ModuleDefinition;
   readonly resolver?: ResolverDefinition;
+  readonly partial?: boolean;
 }
 
 interface WithPath {
