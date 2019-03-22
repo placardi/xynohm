@@ -97,8 +97,11 @@ export class Router implements RouterInterface {
   }
 
   private isValidRoute(path: string): (route: RouteInterface) => boolean {
-    return (route: RouteInterface) =>
-      route.path === this.removeTrailingSlash(path);
+    return (route: RouteInterface) => {
+      return route.partial
+        ? this.removeTrailingSlash(path).startsWith(route.path)
+        : route.path === this.removeTrailingSlash(path);
+    };
   }
 
   private isFallbackRoute(route: RouteInterface): boolean {

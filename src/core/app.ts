@@ -97,6 +97,8 @@ export class App implements AppInterface {
         resolver:
           (definition.resolver && new definition.resolver()) || undefined,
         active: false,
+        partial:
+          typeof definition.partial === 'boolean' ? definition.partial : false,
         activate(): void {
           this.active = true;
         },
