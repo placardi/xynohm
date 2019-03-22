@@ -34,6 +34,7 @@
     "babel-loader": "^8.0.5",
     "base-href-webpack-plugin": "^2.0.0",
     "clean-css": "^4.2.1",
+    "core-js": "^3.0.0",
     "css-loader": "^2.1.1",
     "error-overlay-webpack-plugin": "^0.2.0",
     "file-loader": "^3.0.1",

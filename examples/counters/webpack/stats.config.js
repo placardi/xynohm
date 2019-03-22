@@ -6,7 +6,6 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 module.exports = merge(prodConfig, {
   plugins: [
     new BundleAnalyzerPlugin({
-      // analyzerMode: 'disabled',
       openAnalyzer: true,
       generateStatsFile: true
     })
