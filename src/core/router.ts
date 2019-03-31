@@ -36,6 +36,9 @@ export class Router implements RouterInterface {
       });
     const pathname: string = path || this.getPathnameWithoutBaseHref();
     const route: RouteInterface = this.matchRoute(pathname);
+    if (!!route.redirectTo) {
+      return this.navigate(route.redirectTo);
+    }
     route.activate();
     this.routerOutlet.replaceContent(pathname, route);
     this.registerAnchorsWithRoutePaths(this.routerOutlet.element());

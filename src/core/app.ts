@@ -99,6 +99,11 @@ export class App implements AppInterface {
         active: false,
         partial:
           typeof definition.partial === 'boolean' ? definition.partial : false,
+        redirectTo:
+          (typeof definition.redirectTo === 'string' &&
+            definition.redirectTo.startsWith('/') &&
+            definition.redirectTo) ||
+          undefined,
         activate(): void {
           this.active = true;
         },
