@@ -140,5 +140,9 @@ export const convertDataType: (data: string) => any = (data: string) => {
   if (hasBracesRegEx.test(data)) {
     return JSON.parse(data.replace(new RegExp('(\\\\)', 'g'), ''));
   }
-  return data.replace(/['"]+/g, '');
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return data.replace(/['"]+/g, '');
+  }
 };

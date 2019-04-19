@@ -81,7 +81,7 @@ module.exports = {
       baseHref: '/'
     }),
     new StyleLintPlugin({
-      context: 'src'
+      allowEmptyInput: true
     })
   ]
 };
