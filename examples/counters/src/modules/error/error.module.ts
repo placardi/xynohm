@@ -2,14 +2,14 @@ import {
   ComponentDefinition,
   Configuration,
   Module,
-  RouterOutlet
+  RouterOutletInterface
 } from '@placardi/xynohm';
 
 export class ErrorModule extends Module {
   constructor(
     components: ComponentDefinition[],
     configuration: Configuration,
-    routerOutlet: RouterOutlet
+    routerOutlet: RouterOutletInterface
   ) {
     super(components, configuration, routerOutlet);
   }
