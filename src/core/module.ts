@@ -1,19 +1,19 @@
 import { ComponentDefinition, ComponentInterface } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { ModuleInterface } from '../types/module';
+import { RouterOutletInterface } from '../types/router-outlet';
 import { Mounter } from './mounter';
-import { RouterOutlet } from './router-outlet';
 import { Template } from './template';
 
 export class Module implements ModuleInterface {
   private components: ComponentDefinition[];
-  private routerOutlet: RouterOutlet;
+  private routerOutlet: RouterOutletInterface;
   private mounter: Mounter;
 
   constructor(
     components: ComponentDefinition[],
     configuration: Configuration,
-    routerOutlet: RouterOutlet
+    routerOutlet: RouterOutletInterface
   ) {
     this.components = components;
     this.routerOutlet = routerOutlet;

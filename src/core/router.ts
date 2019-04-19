@@ -1,16 +1,16 @@
 import { Configuration } from '../types/configuration';
 import { RouteInterface, RouterInterface } from '../types/router';
-import { RouterOutlet } from './router-outlet';
+import { RouterOutletInterface } from '../types/router-outlet';
 
 export class Router implements RouterInterface {
   private routes: RouteInterface[];
   private configuration: Configuration;
-  private routerOutlet: RouterOutlet;
+  private routerOutlet: RouterOutletInterface;
 
   constructor(
     routes: RouteInterface[],
     configuration: Configuration,
-    routerOutlet: RouterOutlet
+    routerOutlet: RouterOutletInterface
   ) {
     this.routes = routes;
     this.configuration = configuration;

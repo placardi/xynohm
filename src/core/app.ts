@@ -8,6 +8,7 @@ import {
   RouteInterface,
   RouterInterface
 } from '../types/router';
+import { RouterOutletInterface } from '../types/router-outlet';
 import { AppRoot } from './app-root';
 import { Router } from './router';
 import { RouterOutlet } from './router-outlet';
@@ -17,7 +18,7 @@ export class App implements AppInterface {
   private configuration: Configuration;
   private router: RouterInterface;
   private appRoot: AppRoot;
-  private routerOutlet: RouterOutlet;
+  private routerOutlet: RouterOutletInterface;
   private guards: GuardDefinition[];
   private onReady: Executable;
 
