@@ -20,14 +20,16 @@ export class Component implements ComponentInterface {
   private isOnInitExecuted: boolean = false;
   private _global: boolean = false;
   private _isMounted: boolean = false;
+  private _isLoaded: boolean = false;
 
   constructor(model: Model, uuid: string, element: HTMLElement) {
     this._model = { ...this._model, ...model };
     this._uuid = uuid;
     this._element = element;
-    this._element.addEventListener('__components_loaded__', () =>
-      this.states.render({ model: this._model })
-    );
+    this._element.addEventListener('__components_loaded__', () => {
+      this.states.render({ model: this._model });
+      this.setLoaded(true);
+    });
   }
 
   public get name(): string {
@@ -91,6 +93,14 @@ export class Component implements ComponentInterface {
 
   public isMounted(): boolean {
     return this._isMounted;
+  }
+
+  public setLoaded(loaded: boolean): void {
+    this._isLoaded = !!loaded;
+  }
+
+  public isLoaded(): boolean {
+    return this._isLoaded;
   }
 
   protected get model(): Model {

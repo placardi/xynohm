@@ -218,11 +218,19 @@ export class Mounter implements MounterInterface {
           mutations.forEach(mutation => {
             if (mutation.type === 'childList') {
               this.assignDependencies();
-              instance.element.dispatchEvent(this.componentsLoadedEvent);
-              if (instance.onInit && !instance.getIsOnInitExecuted()) {
-                instance.onInit();
-                instance.setIsOnInitExecuted(true);
-              }
+              this.mountedComponents
+                .filter(c => !c.isLoaded())
+                .forEach(c => {
+                  c.element.dispatchEvent(this.componentsLoadedEvent);
+                  if (c.onInit && !c.getIsOnInitExecuted()) {
+                    c.onInit();
+                    c.setIsOnInitExecuted(true);
+                  }
+                  c.setMounted(true);
+                  if (c.onMount && c.onMount instanceof Function) {
+                    c.onMount();
+                  }
+                });
             }
           });
           observer.disconnect();
