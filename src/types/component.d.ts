@@ -75,6 +75,7 @@ interface ComponentInterface
   isGlobal(): boolean;
   setMounted(mounted: boolean): void;
   isMounted(): boolean;
+  isLoaded(): boolean;
 }
 
 interface ComponentDefinition extends Templateable {
