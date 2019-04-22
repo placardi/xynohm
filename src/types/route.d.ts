@@ -10,6 +10,7 @@ interface RouteInterface
   extends Activateable,
     Nameable,
     WithPath,
+    WithParsedPath,
     WithData,
     WithRouter {
   readonly module: ModuleInterface;
@@ -34,6 +35,11 @@ interface RouteDefinitionInterface extends Nameable, WithPath {
 
 interface WithPath {
   readonly path: string;
+}
+
+interface WithParsedPath {
+  getParsedPath(): string;
+  setParsedPath(path: string): void;
 }
 
 interface WithData {
