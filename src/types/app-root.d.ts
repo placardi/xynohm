@@ -1,6 +1,7 @@
 import { WithElement } from './common';
 import { ComponentDefinition, ComponentInterface } from './component';
 import { Configuration } from './configuration';
+import { RouterInterface } from './router';
 
 interface AppRootInterface extends WithElement {
   mountComponents(
@@ -12,6 +13,7 @@ interface AppRootInterface extends WithElement {
   getRouterOutlet(): Element;
   getMountedComponents(): ComponentInterface[];
   replaceRouterOutlet(routerOutlet: Element, moduleName: string): Element;
+  initMounter(components: ComponentDefinition[], router: RouterInterface): void;
 }
 
 export { AppRootInterface };

@@ -5,6 +5,7 @@ export * from './guard';
 export * from './module';
 export * from './mounter';
 export * from './resolver';
+export * from './route';
 export * from './router';
 export * from './template-parser';
 export * from './template';

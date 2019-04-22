@@ -1,6 +1,5 @@
 import { ComponentDefinition, ComponentInterface } from '../types/component';
-import { Configuration } from '../types/configuration';
-import { ModuleInterface } from '../types/module';
+import { ModuleDefinitionInput, ModuleInterface } from '../types/module';
 import { RouterOutletInterface } from '../types/router-outlet';
 import { Mounter } from './mounter';
 import { Template } from './template';
@@ -10,17 +9,19 @@ export class Module implements ModuleInterface {
   private routerOutlet: RouterOutletInterface;
   private mounter: Mounter;
 
-  constructor(
-    components: ComponentDefinition[],
-    configuration: Configuration,
-    routerOutlet: RouterOutletInterface
-  ) {
+  constructor({
+    components,
+    router,
+    routerOutlet,
+    configuration
+  }: ModuleDefinitionInput) {
     this.components = components;
     this.routerOutlet = routerOutlet;
     this.mounter = new Mounter(
       this.routerOutlet,
       configuration,
-      this.components
+      this.components,
+      router
     );
   }
 

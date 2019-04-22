@@ -146,3 +146,29 @@ export const convertDataType: (data: string) => any = (data: string) => {
     return data.replace(/['"]+/g, '');
   }
 };
+
+export const removeTrailingSlash: (path: string) => string = (path: string) =>
+  path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+
+export const recreateNode: (
+  element: Element,
+  withChildren?: boolean
+) => HTMLElement = (element: Element, withChildren?: boolean) => {
+  const uuid: string = generateUUID();
+  element.setAttribute('clone-uuid', uuid);
+  const parent: Element = element.parentNode as Element;
+  if (withChildren) {
+    parent.replaceChild(element.cloneNode(true), element);
+  } else {
+    const clone: Node = element.cloneNode(false);
+    while (element.hasChildNodes()) {
+      clone.appendChild(element.firstChild as ChildNode);
+    }
+    parent.replaceChild(clone, element);
+  }
+  const newElement: HTMLElement = parent.querySelector(
+    `[clone-uuid="${uuid}"]`
+  ) as HTMLElement;
+  newElement.removeAttribute('clone-uuid');
+  return newElement;
+};

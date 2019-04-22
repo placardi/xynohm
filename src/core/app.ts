@@ -3,13 +3,11 @@ import { Executable } from '../types/common';
 import { ComponentDefinition } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { GuardDefinition } from '../types/guard';
-import {
-  RouteDefinitionInterface,
-  RouteInterface,
-  RouterInterface
-} from '../types/router';
+import { RouteDefinitionInterface, RouteInterface } from '../types/route';
+import { RouterInterface } from '../types/router';
 import { RouterOutletInterface } from '../types/router-outlet';
 import { AppRoot } from './app-root';
+import { Route } from './route';
 import { Router } from './router';
 import { RouterOutlet } from './router-outlet';
 
@@ -31,13 +29,15 @@ export class App implements AppInterface {
     this.guards = guards || [];
     this.components = components;
     this.configuration = configuration;
-    this.appRoot = new AppRoot(this.configuration, components);
+    this.appRoot = new AppRoot(this.configuration);
     this.routerOutlet = new RouterOutlet(this.appRoot);
     this.router = new Router(
       this.initRoutes(routeDefinitions),
       this.configuration,
+      this.components,
       this.routerOutlet
     );
+    this.appRoot.initMounter(components, this.router);
   }
 
   public run(): Completable {
@@ -79,57 +79,7 @@ export class App implements AppInterface {
   private initRoutes(
     routeDefinitions: RouteDefinitionInterface[]
   ): RouteInterface[] {
-    return routeDefinitions.map(definition => {
-      if (!this.isValidRouteDefinition(definition)) {
-        throw new Error(
-          `invalid route definition with name: ${definition.name} and path: ${
-            definition.path
-          }`
-        );
-      }
-      return {
-        name: definition.name,
-        path: definition.path,
-        module: new definition.module(
-          this.components,
-          this.configuration,
-          this.routerOutlet
-        ),
-        resolver:
-          (definition.resolver && new definition.resolver()) || undefined,
-        active: false,
-        partial:
-          typeof definition.partial === 'boolean' ? definition.partial : false,
-        redirectTo:
-          (typeof definition.redirectTo === 'string' &&
-            definition.redirectTo.startsWith('/') &&
-            definition.redirectTo) ||
-          undefined,
-        activate(): void {
-          this.active = true;
-        },
-        deactivate(): void {
-          this.active = false;
-        },
-        isActive(): boolean {
-          return !!this.active;
-        }
-      };
-    });
-  }
-
-  private isValidRouteDefinition(
-    definition: RouteDefinitionInterface
-  ): boolean {
-    return (
-      typeof definition.name === 'string' &&
-      definition.name.length > 0 &&
-      typeof definition.path === 'string' &&
-      definition.path.length > 0 &&
-      (definition.path.charAt(0) === '/' || definition.path === '**') &&
-      !!definition.module &&
-      (!!definition.resolver ? definition.resolver.prototype.resolve : true)
-    );
+    return routeDefinitions.map(definition => new Route(definition));
   }
 
   private setBaseHref() {

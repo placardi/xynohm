@@ -1,5 +1,5 @@
 import { ComponentInterface } from '../types/component';
-import { RouteInterface } from '../types/router';
+import { RouteInterface } from '../types/route';
 import { RouterOutletInterface } from '../types/router-outlet';
 import { AppRoot } from './app-root';
 
@@ -22,7 +22,10 @@ export class RouterOutlet implements RouterOutletInterface {
     return this.appRoot;
   }
 
-  public replaceContent(pathname: string, route: RouteInterface): void {
+  public replaceContent(
+    pathname: string,
+    route: RouteInterface
+  ): Promise<Element> {
     if (pathname in this.routerOutletCache) {
       this.routerOutletCache[
         location.pathname
@@ -30,54 +33,65 @@ export class RouterOutlet implements RouterOutletInterface {
         this.routerOutletCache[pathname],
         route.module.name
       );
+      // MAYBE ASSIGN DEPENDENCIES HERE AGAIN?
       route.module.getMountedComponents().forEach(component => {
         component.setMounted(true);
         if (component.onMount && component.onMount instanceof Function) {
           component.onMount();
         }
       });
+      return Promise.resolve(this.element());
     } else {
       const appData: object = this.appRoot.getAppData();
       const appRootComponents: ComponentInterface[] = this.appRoot.getMountedComponents();
       if (!!route.resolver) {
-        route.resolver.resolve().then(data => {
-          route.module.template.getProperties().forEach((property: string) => {
-            if (!(property in data)) {
-              data = { ...data, [property]: null };
-            }
+        return route.resolver
+          .resolve({
+            ...appData,
+            ...route.getData()
+          })
+          .then(data => {
+            route.module.template
+              .getProperties()
+              .forEach((property: string) => {
+                if (!(property in data)) {
+                  data = { ...data, [property]: null };
+                }
+              });
+            this.routerOutletCache[pathname] = route.module.render(
+              {
+                ...appData,
+                ...data,
+                ...route.getData()
+              },
+              appRootComponents
+            );
+            const allComponents: ComponentInterface[] = route.module.getMountedComponents();
+            route.module.assignDependencies(allComponents);
+            allComponents.forEach(component =>
+              component.element.dispatchEvent(this.componentsLoadedEvent)
+            );
+            allComponents.forEach(component => {
+              if (component.onInit && !component.getIsOnInitExecuted()) {
+                component.onInit();
+                component.setIsOnInitExecuted(true);
+              }
+            });
+            allComponents.forEach(component => {
+              component.setMounted(true);
+              if (component.onMount && component.onMount instanceof Function) {
+                component.onMount();
+              }
+            });
+            this.appRoot.replaceRouterOutlet(
+              this.routerOutletCache[pathname],
+              route.module.name
+            );
+            return this.element();
           });
-          this.routerOutletCache[pathname] = route.module.render(
-            {
-              ...appData,
-              ...data
-            },
-            appRootComponents
-          );
-          const allComponents: ComponentInterface[] = route.module.getMountedComponents();
-          route.module.assignDependencies(allComponents);
-          allComponents.forEach(component =>
-            component.element.dispatchEvent(this.componentsLoadedEvent)
-          );
-          allComponents.forEach(component => {
-            if (component.onInit && !component.getIsOnInitExecuted()) {
-              component.onInit();
-              component.setIsOnInitExecuted(true);
-            }
-          });
-          allComponents.forEach(component => {
-            component.setMounted(true);
-            if (component.onMount && component.onMount instanceof Function) {
-              component.onMount();
-            }
-          });
-          this.appRoot.replaceRouterOutlet(
-            this.routerOutletCache[pathname],
-            route.module.name
-          );
-        });
       } else {
         this.routerOutletCache[pathname] = route.module.render(
-          appData,
+          { ...appData, ...route.getData() },
           appRootComponents
         );
         const allComponents: ComponentInterface[] = route.module.getMountedComponents();
@@ -101,6 +115,7 @@ export class RouterOutlet implements RouterOutletInterface {
           this.routerOutletCache[pathname],
           route.module.name
         );
+        return Promise.resolve(this.element());
       }
     }
   }
