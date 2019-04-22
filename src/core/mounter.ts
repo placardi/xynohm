@@ -6,6 +6,7 @@ import {
 } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { MounterInterface } from '../types/mounter';
+import { RouterInterface } from '../types/router';
 import {
   camelCaseToDash,
   convertDataType,
@@ -22,6 +23,7 @@ import {
 export class Mounter implements MounterInterface {
   private appData: object;
   private content: WithElement;
+  private router: RouterInterface;
   private configuration: Configuration;
   private components: ComponentDefinition[];
   private mountedElement: HTMLElement;
@@ -34,11 +36,13 @@ export class Mounter implements MounterInterface {
     content: WithElement,
     configuration: Configuration,
     components: ComponentDefinition[],
+    router: RouterInterface,
     global?: boolean
   ) {
     this.appData = {};
     this.content = content;
     this.mountedComponents = [];
+    this.router = router;
     this.components = components;
     this.configuration = configuration;
     this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
@@ -230,6 +234,7 @@ export class Mounter implements MounterInterface {
                   if (c.onMount && c.onMount instanceof Function) {
                     c.onMount();
                   }
+                  this.router.registerAnchorsWithRoutePaths(c.element);
                 });
             }
           });

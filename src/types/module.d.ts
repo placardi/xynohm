@@ -2,6 +2,7 @@ import { RouterOutletInterface } from './router-outlet';
 import { Nameable, Templateable } from './common';
 import { ComponentDefinition, ComponentInterface } from './component';
 import { Configuration } from './configuration';
+import { RouterInterface } from './router';
 
 interface ModuleInterface extends Nameable, Renderable, Templateable {}
 
@@ -11,10 +12,13 @@ interface Renderable {
   assignDependencies(components: ComponentInterface[]): void;
 }
 
-type ModuleDefinition = new (
-  components: ComponentDefinition[],
-  configuration: Configuration,
-  routerOutlet: RouterOutletInterface
-) => ModuleInterface;
+interface ModuleDefinitionInput {
+  components: ComponentDefinition[];
+  configuration: Configuration;
+  router: RouterInterface;
+  routerOutlet: RouterOutletInterface;
+}
 
-export { ModuleInterface, ModuleDefinition };
+type ModuleDefinition = new (input: ModuleDefinitionInput) => ModuleInterface;
+
+export { ModuleInterface, ModuleDefinition, ModuleDefinitionInput };

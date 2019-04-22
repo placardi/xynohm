@@ -5,7 +5,7 @@ export class Resolver implements ResolverIntrface {
     return this.constructor.name;
   }
 
-  public resolve(): Promise<object> {
+  public resolve(_data: any): Promise<object> {
     return Promise.resolve({});
   }
 

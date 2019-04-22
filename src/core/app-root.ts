@@ -1,6 +1,7 @@
 import { AppRootInterface } from '../types/app-root';
 import { ComponentDefinition, ComponentInterface } from '../types/component';
 import { Configuration } from '../types/configuration';
+import { RouterInterface } from '../types/router';
 import { Mounter } from './mounter';
 
 export class AppRoot implements AppRootInterface {
@@ -9,10 +10,9 @@ export class AppRoot implements AppRootInterface {
   private configuration: Configuration;
   private mountedComponents: ComponentInterface[];
 
-  constructor(configuration: Configuration, components: ComponentDefinition[]) {
+  constructor(configuration: Configuration) {
     this.appData = {};
     this.configuration = configuration;
-    this.mounter = new Mounter(this, this.configuration, components, true);
   }
 
   public mountComponents(appData: object): ComponentInterface[] {
@@ -65,5 +65,18 @@ export class AppRoot implements AppRootInterface {
       throw new Error('app-root element not found');
     }
     return appRoot;
+  }
+
+  public initMounter(
+    components: ComponentDefinition[],
+    router: RouterInterface
+  ): void {
+    this.mounter = new Mounter(
+      this,
+      this.configuration,
+      components,
+      router,
+      true
+    );
   }
 }

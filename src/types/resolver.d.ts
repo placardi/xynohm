@@ -3,7 +3,7 @@ import { Nameable } from './common';
 interface ResolverIntrface extends Nameable, Resolvable {}
 
 interface Resolvable {
-  resolve(): Promise<object>;
+  resolve(data: any): Promise<object>;
 }
 
 type ResolverDefinition = new () => ResolverIntrface;
