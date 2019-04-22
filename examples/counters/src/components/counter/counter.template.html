@@ -9,7 +9,7 @@
       class="add-button"
       type="button"
       name="add-button"
-      _click="Counter.add({ &quot;increment&quot;: 1 })"
+      _click='Counter.add({ "increment": 1 })'
     >
       {{ buttons.add }}
     </button>
@@ -17,7 +17,7 @@
       class="subtract-button"
       type="button"
       name="subtract-button"
-      _click="Counter.subtract({ &quot;decrement&quot;: 1 })"
+      _click='Counter.subtract({ "decrement": 1 })'
     >
       {{ buttons.subtract }}
     </button>
@@ -25,10 +25,11 @@
       class="reset-button"
       type="button"
       name="reset-button"
-      _click="Counter.reset({ &quot;value&quot;: 0 })"
+      _click='Counter.reset({ "value": 0 })'
     >
       {{ buttons.reset }}
     </button>
   </div>
   <app-button _click="Button.fetch()"></app-button>
+  <a routePath="/counters/{{ counter.id }}">Link to counter {{ counter.id }}</a>
 </template>

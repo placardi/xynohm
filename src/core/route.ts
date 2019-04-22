@@ -9,6 +9,7 @@ import { RouterOutletInterface } from '../types/router-outlet';
 export class Route implements RouteInterface {
   private _name: string;
   private _path: string;
+  private _parsedPath: string;
   private _definition: RouteDefinitionInterface;
   private _module: ModuleInterface;
   private _resolver?: ResolverIntrface;
@@ -108,6 +109,14 @@ export class Route implements RouteInterface {
 
   public setData(data: object): void {
     this._data = data;
+  }
+
+  public getParsedPath(): string {
+    return this._parsedPath || this._path;
+  }
+
+  public setParsedPath(path: string): void {
+    this._parsedPath = path;
   }
 
   public getRouter(): RouterInterface {

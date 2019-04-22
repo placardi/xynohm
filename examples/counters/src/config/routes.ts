@@ -1,18 +1,33 @@
 import { RouteDefinitionInterface } from '@placardi/xynohm';
-import { CountersModule, ErrorModule, RootModule } from './modules';
-import { CountersResolver } from './resolvers';
+import {
+  CountersModule,
+  ErrorModule,
+  IndividualCounterModule,
+  RootModule
+} from './modules';
+import { CountersResolver, IndividualCounterResolver } from './resolvers';
 
 export const routes: RouteDefinitionInterface[] = [
   {
-    name: 'root',
-    path: '/',
-    module: RootModule
+    name: 'root.counters',
+    path: 'counters',
+    module: CountersModule,
+    resolver: CountersResolver,
+    partial: true,
+    children: [
+      {
+        name: 'counter',
+        path: '{counterId: [0-9]+}',
+        module: IndividualCounterModule,
+        resolver: IndividualCounterResolver
+      }
+    ]
   },
   {
-    name: 'root.counters',
-    path: '/counters',
-    module: CountersModule,
-    resolver: CountersResolver
+    name: 'root',
+    path: '/',
+    module: RootModule,
+    redirectTo: 'counters'
   },
   {
     name: 'error',

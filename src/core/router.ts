@@ -55,7 +55,7 @@ export class Router implements RouterInterface {
         history.pushState(
           null,
           route.name,
-          this.createPath(route.path, pathname)
+          this.createPath(route.getParsedPath(), pathname)
         );
       }
       if (
@@ -66,7 +66,7 @@ export class Router implements RouterInterface {
         history.replaceState(
           null,
           route.name,
-          this.createPath(route.path, pathname)
+          this.createPath(route.getParsedPath(), pathname)
         );
       }
       window.dispatchEvent(new Event('navigation'));
@@ -150,6 +150,7 @@ export class Router implements RouterInterface {
               {}
             );
             route.setData(routeData);
+            route.setParsedPath(`/${pathParts.join('/')}`);
             return true;
           }
         }
