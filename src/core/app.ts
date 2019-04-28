@@ -3,11 +3,10 @@ import { Executable } from '../types/common';
 import { ComponentDefinition } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { GuardDefinition } from '../types/guard';
-import { RouteDefinitionInterface, RouteInterface } from '../types/route';
+import { RouteDefinitionInterface } from '../types/route';
 import { RouterInterface } from '../types/router';
 import { RouterOutletInterface } from '../types/router-outlet';
 import { AppRoot } from './app-root';
-import { Route } from './route';
 import { Router } from './router';
 import { RouterOutlet } from './router-outlet';
 
@@ -32,7 +31,7 @@ export class App implements AppInterface {
     this.appRoot = new AppRoot(this.configuration);
     this.routerOutlet = new RouterOutlet(this.appRoot);
     this.router = new Router(
-      this.initRoutes(routeDefinitions),
+      routeDefinitions,
       this.configuration,
       this.components,
       this.routerOutlet
@@ -74,12 +73,6 @@ export class App implements AppInterface {
       },
       Promise.resolve({})
     );
-  }
-
-  private initRoutes(
-    routeDefinitions: RouteDefinitionInterface[]
-  ): RouteInterface[] {
-    return routeDefinitions.map(definition => new Route(definition));
   }
 
   private setBaseHref() {

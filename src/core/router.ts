@@ -1,8 +1,9 @@
 import { ComponentDefinition } from '../types/component';
 import { Configuration } from '../types/configuration';
-import { RouteInterface } from '../types/route';
+import { RouteDefinitionInterface, RouteInterface } from '../types/route';
 import { RouterInterface } from '../types/router';
 import { RouterOutletInterface } from '../types/router-outlet';
+import { Route } from './route';
 import { convertDataType, recreateNode, removeTrailingSlash } from './utils';
 
 export class Router implements RouterInterface {
@@ -12,18 +13,14 @@ export class Router implements RouterInterface {
   private routeRegEx: RegExp = /\{\s*([a-zA-Z_][a-zA-Z0-9_-]*)\s*(?::\s*([^{}]*(?:\{(?!1)\}[^{}]*)*))?\}/g;
 
   constructor(
-    routes: RouteInterface[],
+    routeDefinitions: RouteDefinitionInterface[],
     configuration: Configuration,
     components: ComponentDefinition[],
     routerOutlet: RouterOutletInterface
   ) {
-    this.routes = routes.map(route => {
-      route.setRouter(this);
-      route.init(components, configuration, routerOutlet);
-      return route;
-    });
-    this.configuration = configuration;
     this.routerOutlet = routerOutlet;
+    this.configuration = configuration;
+    this.routes = this.initRoutes(routeDefinitions, components);
     this.registerAnchorsWithRoutePaths(document.body);
     window.onpopstate = this.navigate.bind(this, undefined);
   }
@@ -96,7 +93,7 @@ export class Router implements RouterInterface {
   }
 
   private matchRoute(path: string): RouteInterface {
-    let route = this.flattenRoutes().find(this.isValidRoute(path));
+    let route = this.routes.find(this.isValidRoute(path));
     if (!route) {
       route = this.routes.find(this.isFallbackRoute);
       if (!route) {
@@ -172,13 +169,43 @@ export class Router implements RouterInterface {
     return location.origin + baseHref + path;
   }
 
-  private flattenRoutes(): RouteInterface[] {
-    return this.routes.reduce(
-      (previous: RouteInterface[], current) =>
-        current.children && current.children instanceof Array
-          ? previous.concat(current.children, current)
-          : previous.concat(current),
-      []
-    );
+  private initRoutes(
+    definitions: RouteDefinitionInterface[],
+    components: ComponentDefinition[]
+  ): RouteInterface[] {
+    return definitions.reduce((previous: RouteInterface[], current) => {
+      if (current.children && current.children instanceof Array) {
+        const parent: RouteInterface = new Route(
+          current,
+          this,
+          components,
+          this.configuration,
+          this.routerOutlet
+        );
+        return previous.concat(
+          current.children.map(
+            child =>
+              new Route(
+                child,
+                this,
+                components,
+                this.configuration,
+                this.routerOutlet,
+                parent
+              )
+          ),
+          parent
+        );
+      }
+      return previous.concat(
+        new Route(
+          current,
+          this,
+          components,
+          this.configuration,
+          this.routerOutlet
+        )
+      );
+    }, []);
   }
 }

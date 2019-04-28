@@ -11,18 +11,12 @@ interface RouteInterface
     Nameable,
     WithPath,
     WithParsedPath,
-    WithData,
-    WithRouter {
+    WithData {
   readonly module: ModuleInterface;
   readonly resolver: ResolverIntrface | undefined;
   readonly partial?: boolean;
   readonly redirectTo?: string;
   readonly children?: RouteInterface[];
-  init(
-    components: ComponentDefinition[],
-    configuration: Configuration,
-    routerOutlet: RouterOutletInterface
-  ): void;
 }
 
 interface RouteDefinitionInterface extends Nameable, WithPath {
@@ -45,11 +39,6 @@ interface WithParsedPath {
 interface WithData {
   getData(): object;
   setData(data: object): void;
-}
-
-interface WithRouter {
-  getRouter(): RouterInterface;
-  setRouter(router: RouterInterface): void;
 }
 
 interface Activateable {
