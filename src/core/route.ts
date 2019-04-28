@@ -18,10 +18,13 @@ export class Route implements RouteInterface {
   private _children: RouteInterface[] = [];
   private _isActive: boolean = false;
   private _data: object = {};
-  private _router: RouterInterface;
 
   constructor(
     definition: RouteDefinitionInterface,
+    router: RouterInterface,
+    components: ComponentDefinition[],
+    configuration: Configuration,
+    routerOutlet: RouterOutletInterface,
     parentRoute?: RouteInterface
   ) {
     if (!this.isValidRouteDefinition(definition)) {
@@ -34,33 +37,17 @@ export class Route implements RouteInterface {
     this._definition = definition;
     this._name = this.createRouteName(definition, parentRoute);
     this._path = this.createRoutePath(definition, parentRoute);
-
+    this._module = new this._definition.module({
+      components,
+      configuration,
+      routerOutlet,
+      router
+    });
     this._resolver =
       (definition.resolver && new definition.resolver()) || undefined;
     this._partial =
       typeof definition.partial === 'boolean' ? definition.partial : false;
     this._redirectTo = this.createRedirectionPath(definition);
-  }
-
-  public init(
-    components: ComponentDefinition[],
-    configuration: Configuration,
-    routerOutlet: RouterOutletInterface
-  ): void {
-    this._module = new this._definition.module({
-      components,
-      configuration,
-      routerOutlet,
-      router: this.getRouter()
-    });
-    this._children =
-      (this._definition.children instanceof Array &&
-        this._definition.children.map(child => {
-          const route: RouteInterface = new Route(child, this);
-          route.init(components, configuration, routerOutlet);
-          return route;
-        })) ||
-      [];
   }
 
   public get name(): string {
@@ -117,14 +104,6 @@ export class Route implements RouteInterface {
 
   public setParsedPath(path: string): void {
     this._parsedPath = path;
-  }
-
-  public getRouter(): RouterInterface {
-    return this._router;
-  }
-
-  public setRouter(router: RouterInterface): void {
-    this._router = router;
   }
 
   private createRouteName(
