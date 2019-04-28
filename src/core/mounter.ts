@@ -252,12 +252,6 @@ export class Mounter implements MounterInterface {
     if (!internal) {
       this.markElementsAsComponents(instance.element);
       this._mountComponents(instance.element);
-      const activeRoute:
-        | RouteInterface
-        | undefined = this.router.getActiveRoute();
-      const parsedRoutePath: string = activeRoute
-        ? activeRoute.getParsedPath()
-        : '__global__';
       const mutationObserver: MutationObserver = new MutationObserver(
         (mutations: MutationRecord[], observer: MutationObserver) => {
           mutations.forEach(mutation => {
