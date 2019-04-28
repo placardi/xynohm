@@ -6,6 +6,7 @@ import {
 } from '../types/component';
 import { Configuration } from '../types/configuration';
 import { MounterInterface } from '../types/mounter';
+import { RouteInterface } from '../types/route';
 import { RouterInterface } from '../types/router';
 import {
   camelCaseToDash,
@@ -27,7 +28,8 @@ export class Mounter implements MounterInterface {
   private configuration: Configuration;
   private components: ComponentDefinition[];
   private mountedElement: HTMLElement;
-  private mountedComponents: ComponentInterface[];
+  private mountedComponents: { [key: string]: ComponentInterface[] };
+  private mountedGlobalComponents: ComponentInterface[];
   private componentsLoadedEvent: CustomEvent;
   private modelRefs: { [key: string]: object };
   private global: boolean = false;
@@ -41,13 +43,14 @@ export class Mounter implements MounterInterface {
   ) {
     this.appData = {};
     this.content = content;
-    this.mountedComponents = [];
     this.router = router;
     this.components = components;
     this.configuration = configuration;
     this.componentsLoadedEvent = new CustomEvent('__components_loaded__');
     this.modelRefs = {};
     this.global = !!global;
+    this.mountedComponents = {};
+    this.mountedGlobalComponents = [];
   }
 
   public mountComponent(
@@ -59,19 +62,28 @@ export class Mounter implements MounterInterface {
   }
 
   public unmountComponent(elementID: string): void {
+    const parsedRoutePath: string = this.getActiveRoutePath();
     const componentToRemove:
       | ComponentInterface
-      | undefined = this.mountedComponents.find(
+      | undefined = this.getMountedComponents(parsedRoutePath).find(
       component => component.uuid === elementID
     );
     if (componentToRemove) {
       const componentAndChildren: ComponentInterface[] = [
         componentToRemove,
-        ...this.getComponentChildren(componentToRemove, this.mountedComponents)
+        ...this.getComponentChildren(
+          componentToRemove,
+          this.getMountedComponents(parsedRoutePath)
+        )
       ];
-      this.mountedComponents = this.mountedComponents.filter(
-        component => componentAndChildren.indexOf(component) === -1
-      );
+      const newComponents: ComponentInterface[] = this.getMountedComponents(
+        parsedRoutePath
+      ).filter(component => componentAndChildren.indexOf(component) === -1);
+      if (this.global) {
+        this.mountedGlobalComponents = newComponents;
+      } else {
+        this.mountedComponents[parsedRoutePath] = newComponents;
+      }
       (componentToRemove.element.parentNode as HTMLElement).removeChild(
         componentToRemove.element
       );
@@ -82,9 +94,22 @@ export class Mounter implements MounterInterface {
   public mountComponents(
     mountedComponents: ComponentInterface[],
     nodes: NodeList,
-    data: object
+    data: object,
+    path: string
   ): ComponentInterface[] {
-    this.mountedComponents = this.mountedComponents.concat(mountedComponents);
+    if (this.global) {
+      this.mountedGlobalComponents = this.mountedGlobalComponents.concat(
+        mountedComponents
+      );
+    } else {
+      if (!(path in this.mountedComponents)) {
+        this.mountedComponents[path] = [];
+      }
+      this.mountedComponents[path] = this.mountedComponents[path].concat(
+        mountedComponents
+      );
+    }
+    // this.mountedComponents = this.mountedComponents.concat(mountedComponents);
     const sourceElement: Element = this.content.element();
     this.appData = { ...this.appData, ...data };
     this.mountedElement = this._mountComponents(
@@ -106,11 +131,13 @@ export class Mounter implements MounterInterface {
       this.mountedElement,
       sourceElement
     );
-    return this.mountedComponents;
+    return this.getMountedComponents(path);
   }
 
-  public getMountedComponents(): ComponentInterface[] {
-    return this.mountedComponents;
+  public getMountedComponents(path: string): ComponentInterface[] {
+    return this.global
+      ? this.mountedGlobalComponents
+      : this.mountedComponents[path] || [];
   }
 
   public getMountedElement(): HTMLElement {
@@ -118,33 +145,36 @@ export class Mounter implements MounterInterface {
   }
 
   public assignDependencies(components?: ComponentInterface[]): void {
-    (components || this.mountedComponents).forEach(component => {
-      const parents: ComponentInterface[] = this.getComponentParents(
-        component,
-        components || this.mountedComponents
-      );
-      const children: ComponentInterface[] = this.getComponentChildren(
-        component,
-        components || this.mountedComponents
-      );
-      const siblings: ComponentInterface[] = this.getComponentSiblings(
-        component,
-        components || this.mountedComponents
-      );
-      const globals: ComponentInterface[] = this.getComponentGlobals(
-        component,
-        components || this.mountedComponents,
-        parents,
-        children,
-        siblings
-      );
-      component.setDependencies({
-        parents: this.groupByComponentName(parents),
-        children: this.groupByComponentName(children),
-        siblings: this.groupByComponentName(siblings),
-        globals: this.groupByComponentName(globals)
-      });
-    });
+    const parsedRoutePath: string = this.getActiveRoutePath();
+    (components || this.getMountedComponents(parsedRoutePath)).forEach(
+      component => {
+        const parents: ComponentInterface[] = this.getComponentParents(
+          component,
+          components || this.getMountedComponents(parsedRoutePath)
+        );
+        const children: ComponentInterface[] = this.getComponentChildren(
+          component,
+          components || this.getMountedComponents(parsedRoutePath)
+        );
+        const siblings: ComponentInterface[] = this.getComponentSiblings(
+          component,
+          components || this.getMountedComponents(parsedRoutePath)
+        );
+        const globals: ComponentInterface[] = this.getComponentGlobals(
+          component,
+          components || this.getMountedComponents(parsedRoutePath),
+          parents,
+          children,
+          siblings
+        );
+        component.setDependencies({
+          parents: this.groupByComponentName(parents),
+          children: this.groupByComponentName(children),
+          siblings: this.groupByComponentName(siblings),
+          globals: this.groupByComponentName(globals)
+        });
+      }
+    );
   }
 
   private _mountComponent(
@@ -213,16 +243,27 @@ export class Mounter implements MounterInterface {
     instance.setMounter(this);
     instance.setGlobal(this.global);
     this.bindEvents(element, instance);
-    this.mountedComponents.push(instance);
+    const parsedRoutePath: string = this.getActiveRoutePath();
+    if (this.global) {
+      this.mountedGlobalComponents.push(instance);
+    } else {
+      this.mountedComponents[parsedRoutePath].push(instance);
+    }
     if (!internal) {
       this.markElementsAsComponents(instance.element);
       this._mountComponents(instance.element);
+      const activeRoute:
+        | RouteInterface
+        | undefined = this.router.getActiveRoute();
+      const parsedRoutePath: string = activeRoute
+        ? activeRoute.getParsedPath()
+        : '__global__';
       const mutationObserver: MutationObserver = new MutationObserver(
         (mutations: MutationRecord[], observer: MutationObserver) => {
           mutations.forEach(mutation => {
             if (mutation.type === 'childList') {
               this.assignDependencies();
-              this.mountedComponents
+              this.getMountedComponents(parsedRoutePath)
                 .filter(c => !c.isLoaded())
                 .forEach(c => {
                   c.element.dispatchEvent(this.componentsLoadedEvent);
@@ -386,8 +427,8 @@ export class Mounter implements MounterInterface {
       const actions =
         componentName === getComponentName(instance, true)
           ? instance.actions
-          : this.mountedComponents[
-              this.mountedComponents
+          : this.getMountedComponents(this.getActiveRoutePath())[
+              this.getMountedComponents(this.getActiveRoutePath())
                 .map(component => getComponentName(component, true))
                 .lastIndexOf(componentName)
             ].actions;
@@ -504,5 +545,12 @@ export class Mounter implements MounterInterface {
       component =>
         related.indexOf(component.uuid) === -1 && component.uuid !== self.uuid
     );
+  }
+
+  private getActiveRoutePath(): string {
+    const activeRoute:
+      | RouteInterface
+      | undefined = this.router.getActiveRoute();
+    return activeRoute ? activeRoute.getParsedPath() : '__global__';
   }
 }

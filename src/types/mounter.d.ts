@@ -13,9 +13,10 @@ interface MounterInterface extends ComponentMounter {
   mountComponents(
     mountedComponents: ComponentInterface[],
     nodes: NodeList,
-    data: object
+    data: object,
+    path: string
   ): ComponentInterface[];
-  getMountedComponents(): ComponentInterface[];
+  getMountedComponents(path: string): ComponentInterface[];
   getMountedElement(): HTMLElement;
   assignDependencies(components?: ComponentInterface[]): void;
 }

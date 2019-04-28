@@ -34,12 +34,14 @@ export class RouterOutlet implements RouterOutletInterface {
         route.module.name
       );
       // MAYBE ASSIGN DEPENDENCIES HERE AGAIN?
-      route.module.getMountedComponents().forEach(component => {
-        component.setMounted(true);
-        if (component.onMount && component.onMount instanceof Function) {
-          component.onMount();
-        }
-      });
+      route.module
+        .getMountedComponents(route.getParsedPath())
+        .forEach(component => {
+          component.setMounted(true);
+          if (component.onMount && component.onMount instanceof Function) {
+            component.onMount();
+          }
+        });
       return Promise.resolve(this.element());
     } else {
       const appData: object = this.appRoot.getAppData();
@@ -64,9 +66,12 @@ export class RouterOutlet implements RouterOutletInterface {
                 ...data,
                 ...route.getData()
               },
-              appRootComponents
+              appRootComponents,
+              route.getParsedPath()
             );
-            const allComponents: ComponentInterface[] = route.module.getMountedComponents();
+            const allComponents: ComponentInterface[] = route.module.getMountedComponents(
+              route.getParsedPath()
+            );
             route.module.assignDependencies(allComponents);
             allComponents.forEach(component =>
               component.element.dispatchEvent(this.componentsLoadedEvent)
@@ -92,9 +97,12 @@ export class RouterOutlet implements RouterOutletInterface {
       } else {
         this.routerOutletCache[pathname] = route.module.render(
           { ...appData, ...route.getData() },
-          appRootComponents
+          appRootComponents,
+          route.getParsedPath()
         );
-        const allComponents: ComponentInterface[] = route.module.getMountedComponents();
+        const allComponents: ComponentInterface[] = route.module.getMountedComponents(
+          route.getParsedPath()
+        );
         route.module.assignDependencies(allComponents);
         allComponents.forEach(component =>
           component.element.dispatchEvent(this.componentsLoadedEvent)

@@ -7,8 +7,12 @@ import { RouterInterface } from './router';
 interface ModuleInterface extends Nameable, Renderable, Templateable {}
 
 interface Renderable {
-  render(data: object, components: ComponentInterface[]): HTMLElement;
-  getMountedComponents(): ComponentInterface[];
+  render(
+    data: object,
+    components: ComponentInterface[],
+    path: string
+  ): HTMLElement;
+  getMountedComponents(path: string): ComponentInterface[];
   assignDependencies(components: ComponentInterface[]): void;
 }
 

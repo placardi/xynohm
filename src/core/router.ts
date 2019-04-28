@@ -30,7 +30,7 @@ export class Router implements RouterInterface {
       .filter(r => r.isActive())
       .forEach(r => {
         r.module
-          .getMountedComponents()
+          .getMountedComponents(r.getParsedPath())
           .filter(c => !c.isGlobal() && c.isMounted())
           .forEach(c => {
             if (!!c.onUnmount && c.onUnmount instanceof Function) {
@@ -82,6 +82,10 @@ export class Router implements RouterInterface {
         }
       });
     });
+  }
+
+  public getActiveRoute(): RouteInterface | undefined {
+    return this.routes.find(route => route.isActive());
   }
 
   private getPathnameWithoutBaseHref(): string {

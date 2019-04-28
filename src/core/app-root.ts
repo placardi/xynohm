@@ -20,7 +20,8 @@ export class AppRoot implements AppRootInterface {
     this.mountedComponents = this.mounter.mountComponents(
       [],
       this.element().childNodes,
-      this.appData
+      this.appData,
+      '__global__'
     );
     return this.mountedComponents;
   }
