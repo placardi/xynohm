@@ -25,19 +25,28 @@ export class Module implements ModuleInterface {
     );
   }
 
-  public render(data: object, components: ComponentInterface[]): HTMLElement {
+  public render(
+    data: object,
+    components: ComponentInterface[],
+    path: string
+  ): HTMLElement {
     const model: object = data instanceof Object ? data : {};
     const { modelRefs, nodes } = this.template.process(
       model,
       this.routerOutlet.getAppRoot().getConfiguration(),
       this.components
     );
-    this.mounter.mountComponents(components, nodes, { ...model, ...modelRefs });
+    this.mounter.mountComponents(
+      components,
+      nodes,
+      { ...model, ...modelRefs },
+      path
+    );
     return this.mounter.getMountedElement();
   }
 
-  public getMountedComponents(): ComponentInterface[] {
-    return this.mounter.getMountedComponents();
+  public getMountedComponents(path: string): ComponentInterface[] {
+    return this.mounter.getMountedComponents(path);
   }
 
   public assignDependencies(components: ComponentInterface[]): void {
